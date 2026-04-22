@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - PanamaAlert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style nonce="{{ csp_nonce }}">
+        body.auth {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+        body.auth::before {
+            content: ''; position: fixed; inset: 0; z-index: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(14,165,228,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.08) 0%, transparent 40%);
+            pointer-events: none;
+        }
+        body.auth::after {
+            content: ''; position: fixed; inset: 0; z-index: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 48px 48px; pointer-events: none;
+        }
+
+        .auth-shell { position: relative; z-index: 1; perspective: 1000px; }
+
+        .auth-card {
+            animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 580px;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05) inset;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .brand { gap: 14px; }
+        .brand-mark {
+            width: 44px; height: 44px; border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary, #0ea5e4), #06b6d4);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 800; font-size: 15px; letter-spacing: -0.5px;
+            box-shadow: 0 4px 16px rgba(14,165,228,0.3);
+        }
+        .brand h1 { font-size: 20px; color: white; }
+        .brand p { color: rgba(255,255,255,0.5); font-size: 12px; }
+
+        .auth-title { color: white; font-size: 22px; }
+        .auth-subtitle { color: rgba(255,255,255,0.5); }
+
+        /* Form grid */
+        .form-grid.two-col { grid-template-columns: 1fr 1fr; gap: 14px; }
+        @media (max-width: 520px) { .form-grid.two-col { grid-template-columns: 1fr; } }
+
+        /* Fields - dark theme override */
+        .auth-card .field label { color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .auth-card .field input,
+        .auth-card .field select {
+            background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.1);
+            color: white; border-radius: 10px; padding: 11px 14px; font-size: 14px;
+            font-family: 'Inter', sans-serif; transition: all 0.2s;
+        }
+        .auth-card .field input::placeholder { color: rgba(255,255,255,0.25); }
+        .auth-card .field input:focus {
+            border-color: var(--primary, #0ea5e4);
+            box-shadow: 0 0 0 3px rgba(14,165,228,0.2);
+            outline: none; background: rgba(255,255,255,0.08);
+        }
+
+        /* Password strength */
+        .password-strength { margin-top: 8px; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+        .password-strength-bar { height: 100%; width: 0; transition: width 0.3s, background-color 0.3s; }
+        .password-strength-bar.weak { width: 33%; background: #ef4444; }
+        .password-strength-bar.medium { width: 66%; background: #f59e0b; }
+        .password-strength-bar.strong { width: 100%; background: #22c55e; }
+
+        .password-requirements {
+            margin-top: 10px; padding: 12px; background: rgba(255,255,255,0.04);
+            border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);
+        }
+        .requirement { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 12px; color: rgba(255,255,255,0.35); transition: color 0.2s; }
+        .requirement-check { font-size: 13px; font-weight: 700; width: 16px; text-align: center; }
+        .requirement.met { color: #22c55e; }
+        .requirement.met .requirement-check { color: #22c55e; }
+        .requirement.unmet .requirement-check { color: rgba(255,255,255,0.2); }
+
+        /* Checkbox */
+        .checkbox-group { display: flex; align-items: flex-start; gap: 10px; margin: 18px 0; }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px; height: 18px; margin-top: 3px; cursor: pointer;
+            accent-color: var(--primary, #0ea5e4); flex-shrink: 0;
+        }
+        .checkbox-group label { cursor: pointer; font-size: 13px; line-height: 1.5; user-select: none; color: rgba(255,255,255,0.5); }
+        .checkbox-group a { color: var(--primary, #0ea5e4); text-decoration: none; font-weight: 600; }
+        .checkbox-group a:hover { text-decoration: underline; }
+
+        /* Submit */
+        .auth-card .btn-primary {
+            background: linear-gradient(135deg, var(--primary, #0ea5e4), #0284c7);
+            box-shadow: 0 4px 16px rgba(14,165,228,0.3);
+            font-size: 14px; padding: 12px; border-radius: 10px; width: 100%;
+            font-weight: 700; border: none; color: white; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: all 0.2s;
+        }
+        .auth-card .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(14,165,228,0.4); }
+        .auth-card .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .signin-link { text-align: center; margin-top: 20px; font-size: 13px; color: rgba(255,255,255,0.4); }
+        .signin-link a { color: var(--primary, #0ea5e4); font-weight: 700; text-decoration: none; }
+        .signin-link a:hover { text-decoration: underline; }
+
+        .success-badge {
+            display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px;
+            background: rgba(34,197,94,0.15); color: #22c55e; border-radius: 6px;
+            font-size: 11px; font-weight: 700; margin-top: 6px;
+        }
+
+        .error-message { display: none; color: #ef4444; font-size: 11px; margin-top: 4px; font-weight: 600; }
+        .error-message.show { display: block; }
+        .field input.error { border-color: #ef4444; }
+        .field input.error:focus { box-shadow: 0 0 0 3px rgba(239,68,68,0.2); }
+
+        /* AI badge */
+        .ai-secure-badge {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px; margin-top: 16px; border-radius: 10px;
+            background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.15);
+            font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600;
+        }
+        .ai-secure-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+
+        /* Floating particles */
+        .auth-particle {
+            position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+            background: rgba(14,165,228,0.08); animation: particleFloat 20s infinite;
+        }
+        @keyframes particleFloat {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-30px) translateX(15px); }
+            50% { transform: translateY(-10px) translateX(-10px); }
+            75% { transform: translateY(-40px) translateX(5px); }
+        }
+
+        /* Alert flash */
+        .alert { padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; font-weight: 600; }
+        .alert-error { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+        .alert-success { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+    </style>
+</head>
+<body class="auth">
+    <!-- Decorative particles -->
+    <div class="auth-particle" style="width:120px;height:120px;top:15%;left:8%;animation-delay:-5s;"></div>
+    <div class="auth-particle" style="width:80px;height:80px;top:60%;right:12%;animation-delay:-10s;"></div>
+    <div class="auth-particle" style="width:50px;height:50px;bottom:20%;left:20%;animation-delay:-15s;"></div>
+
+    <div class="auth-shell">
+        <div class="auth-card">
+            <div class="brand">
+                <img src="{{ url_for('static', filename='logo-compact.svg') }}" alt="PA" width="44" height="44" style="border-radius:14px;">
+                <div>
+                    <h1>PanamaAlert</h1>
+                    <p>Plataforma de Inteligencia Ciudadana</p>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <h2 class="auth-title">Crea tu Cuenta</h2>
+            <p class="auth-subtitle">Unete a la red de inteligencia ciudadana mas avanzada de Panama</p>
+            <div id="registerFeedback" class="feedback-panel warning">
+                <div class="feedback-title">Revisa los datos del registro</div>
+                <div class="feedback-copy"></div>
+            </div>
+
+            <form method="POST" id="registro-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                <div class="form-grid two-col">
+                    <div class="field">
+                        <label>Nombre</label>
+                        <input type="text" name="nombre" placeholder="Juan" required>
+                        <span class="error-message"></span>
+                    </div>
+                    <div class="field">
+                        <label>Apellido</label>
+                        <input type="text" name="apellido" placeholder="Perez" required>
+                        <span class="error-message"></span>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Usuario</label>
+                    <input type="text" name="username" id="username" placeholder="tu_usuario (3-20 caracteres)" required>
+                    <span class="error-message"></span>
+                    <span class="success-badge" id="username-check" style="display:none;">Disponible</span>
+                </div>
+
+                <div class="field">
+                    <label>Correo Electronico</label>
+                    <input type="email" name="correo" placeholder="tu@email.com" required>
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="field">
+                    <label>Contraseña</label>
+                    <input type="password" name="contrasena" id="password" placeholder="Crea una contraseña segura" required>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="strength-bar"></div>
+                    </div>
+                    <div class="password-requirements">
+                        <div class="requirement unmet" id="req-length">
+                            <span class="requirement-check">&#10003;</span>
+                            <span>8+ caracteres</span>
+                        </div>
+                        <div class="requirement unmet" id="req-upper">
+                            <span class="requirement-check">&#10003;</span>
+                            <span>Una mayuscula (A-Z)</span>
+                        </div>
+                        <div class="requirement unmet" id="req-lower">
+                            <span class="requirement-check">&#10003;</span>
+                            <span>Una minuscula (a-z)</span>
+                        </div>
+                        <div class="requirement unmet" id="req-number">
+                            <span class="requirement-check">&#10003;</span>
+                            <span>Un numero (0-9)</span>
+                        </div>
+                    </div>
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="field">
+                    <label>Confirmar Contraseña</label>
+                    <input type="password" name="confirmar_contrasena" id="confirm-password" placeholder="Repite tu contraseña" required>
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-grid two-col">
+                    <div class="field">
+                        <label>Cedula (Opcional)</label>
+                        <input type="text" name="cedula" placeholder="1-234-5678">
+                    </div>
+                    <div class="field">
+                        <label>Telefono (Opcional)</label>
+                        <input type="tel" name="telefono" placeholder="+507 1234-5678">
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">
+                        Acepto los <a href="#">Terminos de Servicio</a> y la
+                        <a href="#">Politica de Privacidad</a>
+                    </label>
+                </div>
+
+                <div class="auth-actions">
+                    <button type="submit" class="btn-primary" id="submit-btn">
+                        Crear Cuenta
+                    </button>
+                </div>
+            </form>
+
+            <div class="ai-secure-badge">
+                <span class="dot"></span>
+                Protegido por IA - Fake Ping Detector &amp; Smart Moderator activos
+            </div>
+
+            <div class="signin-link">
+                Ya tienes cuenta?
+                <a href="{{ url_for('auth.login') }}">Inicia sesion aqui</a>
+            </div>
+        </div>
+    </div>
+
+    <script nonce="{{ csp_nonce }}">
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirm-password');
+        const form = document.getElementById('registro-form');
+        const registerFeedback = document.getElementById('registerFeedback');
+
+        function setRegisterFeedback(message = '', type = 'warning') {
+            if (!registerFeedback) return;
+            registerFeedback.className = `feedback-panel ${type}`;
+            registerFeedback.querySelector('.feedback-copy').textContent = message;
+            registerFeedback.classList.toggle('show', !!message);
+        }
+
+        passwordInput.addEventListener('input', function() {
+            const pwd = this.value;
+            const reqs = {
+                length: pwd.length >= 8,
+                upper: /[A-Z]/.test(pwd),
+                lower: /[a-z]/.test(pwd),
+                number: /[0-9]/.test(pwd)
+            };
+
+            const metCount = Object.values(reqs).filter(v => v).length;
+
+            document.getElementById('req-length').className = 'requirement ' + (reqs.length ? 'met' : 'unmet');
+            document.getElementById('req-upper').className = 'requirement ' + (reqs.upper ? 'met' : 'unmet');
+            document.getElementById('req-lower').className = 'requirement ' + (reqs.lower ? 'met' : 'unmet');
+            document.getElementById('req-number').className = 'requirement ' + (reqs.number ? 'met' : 'unmet');
+
+            const bar = document.getElementById('strength-bar');
+            if (metCount <= 1) bar.className = 'password-strength-bar weak';
+            else if (metCount <= 2) bar.className = 'password-strength-bar medium';
+            else if (metCount >= 3) bar.className = 'password-strength-bar strong';
+            else bar.className = 'password-strength-bar';
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const nombre = document.querySelector('input[name="nombre"]').value.trim();
+            const apellido = document.querySelector('input[name="apellido"]').value.trim();
+            const username = document.querySelector('input[name="username"]').value.trim();
+            const correo = document.querySelector('input[name="correo"]').value.trim();
+            const pwd = document.querySelector('input[name="contrasena"]').value;
+            const confirmPwd = document.querySelector('input[name="confirmar_contrasena"]').value;
+            const terms = document.getElementById('terms').checked;
+
+            // Clear errors
+            document.querySelectorAll('.error-message').forEach(el => { el.classList.remove('show'); el.textContent = ''; });
+            document.querySelectorAll('.field input').forEach(el => el.classList.remove('error'));
+            setRegisterFeedback('');
+
+            let hasError = false;
+
+            function showFieldError(input, msg) {
+                const field = input.closest('.field');
+                const err = field.querySelector('.error-message');
+                if (err) { err.textContent = msg; err.classList.add('show'); }
+                input.classList.add('error');
+                hasError = true;
+            }
+
+            if (!nombre) showFieldError(document.querySelector('input[name="nombre"]'), 'Nombre requerido');
+            if (!apellido) showFieldError(document.querySelector('input[name="apellido"]'), 'Apellido requerido');
+            if (!username || !/^[A-Za-z0-9._-]{3,20}$/.test(username))
+                showFieldError(document.querySelector('input[name="username"]'), '3-20 caracteres: letras, numeros, . - _');
+            if (!correo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo))
+                showFieldError(document.querySelector('input[name="correo"]'), 'Correo invalido');
+            if (pwd.length < 8)
+                showFieldError(document.getElementById('password'), 'Minimo 8 caracteres');
+            if (pwd !== confirmPwd)
+                showFieldError(document.getElementById('confirm-password'), 'Las contraseñas no coinciden');
+            if (!terms) {
+                setRegisterFeedback('Debes aceptar los terminos de servicio antes de crear la cuenta.', 'warning');
+                hasError = true;
+            }
+
+            if (!hasError) {
+                const btn = document.getElementById('submit-btn');
+                btn.textContent = 'Creando cuenta...';
+                btn.disabled = true;
+                setRegisterFeedback('Estamos creando tu cuenta y preparando tu acceso inicial...', 'success');
+                this.submit();
+            } else if (!registerFeedback.classList.contains('show')) {
+                setRegisterFeedback('Corrige los campos marcados para completar el registro.', 'warning');
+            }
+        });
+    </script>
+</body>
+</html>

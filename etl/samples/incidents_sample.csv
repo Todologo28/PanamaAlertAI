@@ -1,0 +1,9 @@
+id,title,description,lat,lng,severity,category
+EXT-001,Robo en parada,Robo a mano armada en parada de bus,8.9824,-79.5199,4,robo
+EXT-002,Choque vehicular,Colision menor sin heridos,8.9712,-79.5337,3,accident
+EXT-003,Incendio estructural,Incendio en local comercial,8.9650,-79.5300,5,fire
+EXT-004,Inundacion calle,Calle inundada por lluvia,8.9890,-79.5180,3,flood
+EXT-005,Persona sospechosa,Sujeto merodeando vehiculos,8.9810,-79.5210,2,suspicious
+EXT-006,Vandalismo en parque,Grafiti y daños mobiliario,8.9750,-79.5250,2,vandalism
+EXT-007,Emergencia medica,Persona desmayada en plaza,8.9800,-79.5290,5,medical
+EXT-008,Corte de energia,Apagón en sector,8.9870,-79.5160,2,outage

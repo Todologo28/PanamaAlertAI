@@ -1,0 +1,154 @@
+[
+  {
+    "name": "Telemetro RSS",
+    "type": "rss",
+    "url": "https://www.telemetro.com/contenidos/rss.html",
+    "enabled": true,
+    "ttl_hours": 18,
+    "max_items": 10,
+    "default_location": {
+      "lat": 8.983333,
+      "lng": -79.516667,
+      "label": "Panama, Panama"
+    },
+    "location_keywords": [
+      {
+        "keyword": "arraijan",
+        "lat": 8.9512,
+        "lng": -79.6607,
+        "label": "Arraijan"
+      },
+      {
+        "keyword": "san miguelito",
+        "lat": 9.0333,
+        "lng": -79.5,
+        "label": "San Miguelito"
+      }
+    ]
+  },
+  {
+    "name": "TVN Noticias",
+    "type": "html",
+    "url": "https://www.tvn-2.com/",
+    "enabled": true,
+    "ttl_hours": 18,
+    "max_items": 10,
+    "default_location": {
+      "lat": 8.983333,
+      "lng": -79.516667,
+      "label": "Panama, Panama"
+    },
+    "location_keywords": []
+  },
+  {
+    "name": "La Prensa",
+    "type": "html",
+    "url": "https://www.prensa.com/",
+    "enabled": true,
+    "ttl_hours": 18,
+    "max_items": 10,
+    "default_location": {
+      "lat": 8.983333,
+      "lng": -79.516667,
+      "label": "Panama, Panama"
+    },
+    "location_keywords": []
+  },
+  {
+    "name": "La Estrella de Panama",
+    "type": "html",
+    "url": "https://www.laestrella.com.pa/",
+    "enabled": true,
+    "ttl_hours": 18,
+    "max_items": 10,
+    "default_location": {
+      "lat": 8.983333,
+      "lng": -79.516667,
+      "label": "Panama, Panama"
+    },
+    "location_keywords": []
+  },
+  {
+    "name": "Panama America",
+    "type": "html",
+    "url": "https://www.panamaamerica.com.pa/",
+    "enabled": true,
+    "ttl_hours": 18,
+    "max_items": 10,
+    "default_location": {
+      "lat": 8.983333,
+      "lng": -79.516667,
+      "label": "Panama, Panama"
+    },
+    "location_keywords": []
+  },
+  {
+    "name": "Trafico Panama Instagram",
+    "type": "instagram",
+    "url": "https://www.instagram.com/traficocpanama/",
+    "enabled": false,
+    "ttl_hours": 12,
+    "max_items": 8,
+    "default_location": {
+      "lat": 8.983333,
+      "lng": -79.516667,
+      "label": "Vias principales de Panama"
+    },
+    "location_keywords": []
+  },
+  {
+    "name": "OfertaSimple Panama",
+    "type": "offers_html",
+    "url": "https://ofertasimple.com/section/all-offers",
+    "enabled": true,
+    "ttl_hours": 48,
+    "max_items": 60,
+    "extra_urls": [
+      "https://ofertasimple.com/ofertas/panama/",
+      "https://ofertasimple.com/ofertas/panama/haagen-dazs-desde-helados?ref=Destacadas"
+    ],
+    "offers_mode": true
+  },
+  {
+    "name": "Rantan Ofertas",
+    "type": "offers_html",
+    "url": "https://www.rantanofertas.com/",
+    "enabled": true,
+    "ttl_hours": 48,
+    "max_items": 45,
+    "offers_mode": true
+  },
+  {
+    "name": "Promociones Panama",
+    "type": "offers_html",
+    "url": "https://promocionespanama.com/",
+    "enabled": true,
+    "ttl_hours": 48,
+    "max_items": 45,
+    "extra_urls": [
+      "https://promocionespanama.com/promociones/"
+    ],
+    "offers_mode": true
+  },
+  {
+    "name": "MiOferta24",
+    "type": "offers_html",
+    "url": "https://mioferta24.com/ofertas/",
+    "enabled": true,
+    "ttl_hours": 48,
+    "max_items": 45,
+    "extra_urls": [
+      "https://mioferta24.com/"
+    ],
+    "offers_mode": true
+  },
+  {
+    "name": "Degusta Descuentos",
+    "type": "degusta_offers",
+    "url": "https://www.degustapanama.com/panama/search?filters=eyJmaWx0ZXJzIjp7ImRpc2NvdW50cyI6dHJ1ZX0sInNvcnQiOiJkaXNjb3VudCJ9",
+    "enabled": true,
+    "ttl_hours": 24,
+    "max_items": 60,
+    "offers_mode": true
+  }
+]

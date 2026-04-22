@@ -1,0 +1,27 @@
+[Unit]
+Description=PanamaAlert Gunicorn Service
+After=network.target
+
+[Service]
+Type=simple
+User=egonzalez
+Group=egonzalez
+WorkingDirectory=/home/egonzalez/Documents/app/PanamaAlert2
+EnvironmentFile=/home/egonzalez/Documents/app/PanamaAlert2/.env
+Environment=PORT=5000
+Environment=GUNICORN_WORKERS=4
+Environment=GUNICORN_THREADS=32
+Environment=GUNICORN_TIMEOUT=120
+Environment=GUNICORN_KEEPALIVE=5
+Environment=ULIMIT_NOFILE=65535
+ExecStart=/usr/bin/bash /home/egonzalez/Documents/app/PanamaAlert2/start_prod.sh
+Restart=always
+RestartSec=5
+LimitNOFILE=65535
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=false
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,117 @@
+-- ============================================================================
+-- PanamaAlert - Medidas DAX para Power BI
+-- Copia cada medida por separado en Power BI:
+-- Inicio / Modelado -> Nueva medida
+-- Tabla recomendada para guardarlas: v_incidents_full
+-- ============================================================================
+
+Total Incidentes =
+COUNTROWS(v_incidents_full)
+
+Incidentes Verificados =
+CALCULATE(
+    COUNTROWS(v_incidents_full),
+    v_incidents_full[status] = "verified"
+)
+
+Incidentes Pendientes =
+CALCULATE(
+    COUNTROWS(v_incidents_full),
+    v_incidents_full[status] = "pending"
+)
+
+Incidentes Resueltos =
+CALCULATE(
+    COUNTROWS(v_incidents_full),
+    v_incidents_full[status] = "resolved"
+)
+
+Incidentes Descartados =
+CALCULATE(
+    COUNTROWS(v_incidents_full),
+    v_incidents_full[status] = "dismissed"
+)
+
+Severidad Promedio =
+AVERAGE(v_incidents_full[severity])
+
+Tasa Verificacion =
+DIVIDE(
+    [Incidentes Verificados],
+    [Total Incidentes],
+    0
+)
+
+Tasa Pendientes =
+DIVIDE(
+    [Incidentes Pendientes],
+    [Total Incidentes],
+    0
+)
+
+Incidentes 24h =
+CALCULATE(
+    COUNTROWS(v_incidents_full),
+    v_incidents_full[created_at] >= NOW() - 1
+)
+
+Incidentes 7d =
+CALCULATE(
+    COUNTROWS(v_incidents_full),
+    v_incidents_full[created_at] >= NOW() - 7
+)
+
+Reportes Ciudadanos =
+CALCULATE(
+    COUNTROWS(v_incidents_full),
+    v_incidents_full[source_type] = "Reporte ciudadano"
+)
+
+Pings Bot =
+CALCULATE(
+    COUNTROWS(v_incidents_full),
+    v_incidents_full[source_type] = "Bot / Fuente externa"
+)
+
+Comentarios Totales =
+SUM(v_incidents_full[comments_count])
+
+Score Total =
+SUM(v_incidents_full[score])
+
+Tiempo Promedio Verificacion Min =
+AVERAGE(v_incidents_full[verification_minutes])
+
+Usuarios Registrados =
+COUNTROWS(v_user_activity)
+
+Usuarios Pago =
+CALCULATE(
+    COUNTROWS(v_user_activity),
+    v_user_activity[has_paid_plan] = 1
+)
+
+Tasa Usuarios Pago =
+DIVIDE(
+    [Usuarios Pago],
+    [Usuarios Registrados],
+    0
+)
+
+Hotspots 30d =
+COUNTROWS(v_hotspots)
+
+Incidentes Hotspots 30d =
+SUM(v_hotspots[incidents_30d])
+
+Categoria Top Incidentes =
+MAXX(
+    TOPN(
+        1,
+        v_bi_category_summary,
+        v_bi_category_summary[total_incidents],
+        DESC
+    ),
+    v_bi_category_summary[category_name]
+)
+

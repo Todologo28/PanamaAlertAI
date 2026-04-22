@@ -1,0 +1,183 @@
+{
+  "info": {
+    "name": "PanamaAlert API v1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "panama-alert-001",
+    "description": "Colección completa de la API REST PanamaAlert. Variables: {{base_url}} y {{token}} se autorrellena tras el login."
+  },
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:5000"},
+    {"key": "token",    "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {"method": "GET", "url": "{{base_url}}/api/v1/health"}
+    },
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": "{{base_url}}/api/v1/auth/register",
+        "body": {"mode": "raw", "raw": "{\n  \"username\": \"demo01\",\n  \"email\": \"demo01@panamaalert.pa\",\n  \"password\": \"Password123\",\n  \"full_name\": \"Demo Uno\"\n}"}
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "event": [{
+        "listen": "test",
+        "script": {"exec": [
+          "const r = pm.response.json();",
+          "if (r.token) pm.collectionVariables.set('token', r.token);"
+        ], "type": "text/javascript"}
+      }],
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": "{{base_url}}/api/v1/auth/login",
+        "body": {"mode": "raw", "raw": "{\n  \"email\": \"demo01@panamaalert.pa\",\n  \"password\": \"Password123\"\n}"}
+      }
+    },
+    {
+      "name": "Categories",
+      "request": {"method": "GET", "url": "{{base_url}}/api/v1/categories"}
+    },
+    {
+      "name": "Plans",
+      "request": {"method": "GET", "url": "{{base_url}}/api/v1/plans"}
+    },
+    {
+      "name": "Incidents - List",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": "{{base_url}}/api/v1/incidents?page=1&limit=20"
+      }
+    },
+    {
+      "name": "Incidents - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{token}}"},
+          {"key": "Content-Type",  "value": "application/json"}
+        ],
+        "url": "{{base_url}}/api/v1/incidents",
+        "body": {"mode": "raw", "raw": "{\n  \"category_id\": 1,\n  \"title\": \"Robo en parada\",\n  \"description\": \"Robo a mano armada\",\n  \"lat\": 8.9824,\n  \"lng\": -79.5199,\n  \"severity\": 4\n}"}
+      }
+    },
+    {
+      "name": "Incidents - Nearby",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": "{{base_url}}/api/v1/incidents/nearby?lat=8.98&lng=-79.51&radius_km=5"
+      }
+    },
+    {
+      "name": "Incidents - Vote",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{token}}"},
+          {"key": "Content-Type",  "value": "application/json"}
+        ],
+        "url": "{{base_url}}/api/v1/incidents/1/vote",
+        "body": {"mode": "raw", "raw": "{\"vote\": 1}"}
+      }
+    },
+    {
+      "name": "Incidents - Comment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{token}}"},
+          {"key": "Content-Type",  "value": "application/json"}
+        ],
+        "url": "{{base_url}}/api/v1/incidents/1/comments",
+        "body": {"mode": "raw", "raw": "{\"body\": \"Confirmo el incidente\"}"}
+      }
+    },
+    {
+      "name": "Incidents - Update",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{token}}"},
+          {"key": "Content-Type",  "value": "application/json"}
+        ],
+        "url": "{{base_url}}/api/v1/incidents/1",
+        "body": {"mode": "raw", "raw": "{\"severity\": 5}"}
+      }
+    },
+    {
+      "name": "Incidents - Verify (mod)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{token}}"},
+          {"key": "Content-Type",  "value": "application/json"}
+        ],
+        "url": "{{base_url}}/api/v1/incidents/1/verify",
+        "body": {"mode": "raw", "raw": "{\"status\": \"verified\"}"}
+      }
+    },
+    {
+      "name": "Incidents - Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": "{{base_url}}/api/v1/incidents/1"
+      }
+    },
+    {
+      "name": "Alert Sub - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{token}}"},
+          {"key": "Content-Type",  "value": "application/json"}
+        ],
+        "url": "{{base_url}}/api/v1/alert-subscriptions",
+        "body": {"mode": "raw", "raw": "{\n  \"lat\": 8.98, \"lng\": -79.51,\n  \"radius_km\": 3, \"min_severity\": 3\n}"}
+      }
+    },
+    {
+      "name": "Notifications - List",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": "{{base_url}}/api/v1/notifications"
+      }
+    },
+    {
+      "name": "Plans - Upgrade",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{token}}"},
+          {"key": "Content-Type",  "value": "application/json"}
+        ],
+        "url": "{{base_url}}/api/v1/plans/upgrade",
+        "body": {"mode": "raw", "raw": "{\"plan_id\": 2, \"months\": 1}"}
+      }
+    },
+    {
+      "name": "Dashboard - Summary",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": "{{base_url}}/api/v1/dashboard/summary"
+      }
+    },
+    {
+      "name": "Dashboard - Daily",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": "{{base_url}}/api/v1/dashboard/daily"
+      }
+    }
+  ]
+}

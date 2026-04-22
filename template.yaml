@@ -1,0 +1,107 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: PanamaAlert2 Flask
+
+Parameters:
+  UsersTableName:
+    Type: String
+    Default: PanamaAlertsUser
+  PingsTableName:
+    Type: String
+    Default: PanamaAlertsPings
+  SecretKey:
+    Type: String
+    NoEcho: true
+    Description: Flask SECRET_KEY (strong random value)
+  TotpEncKey:
+    Type: String
+    NoEcho: true
+    Description: Fernet key to encrypt TOTP secrets
+  AuthAttemptsTableName:
+    Type: String
+    Default: PanamaAlertsAuthAttempts
+  SecurityAlertsTableName:
+    Type: String
+    Default: PanamaAlertsSecurityAlerts
+  AlertTtlSeconds:
+    Type: Number
+    Default: 2592000
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 30
+    MemorySize: 256
+
+Resources:
+  AuthAttemptsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref AuthAttemptsTableName
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: key
+          AttributeType: S
+      KeySchema:
+        - AttributeName: key
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+  SecurityAlertsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref SecurityAlertsTableName
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: alert_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: alert_id
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+  FlaskFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: lambda_handler.handler
+      Events:
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: ANY
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+      Environment:
+        Variables:
+          USERS_TABLE: !Ref UsersTableName
+          PINGS_TABLE: !Ref PingsTableName
+          USERS_PK: email
+          PINGS_PK: user_id
+          PINGS_SK: ts
+          SECRET_KEY: !Ref SecretKey
+          TOTP_ENC_KEY: !Ref TotpEncKey
+          AUTH_ATTEMPTS_TABLE: !Ref AuthAttemptsTableName
+          SECURITY_ALERTS_TABLE: !Ref SecurityAlertsTableName
+          ALERT_TTL_SECONDS: !Ref AlertTtlSeconds
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTableName
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PingsTableName
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthAttemptsTableName
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SecurityAlertsTableName
+
+Outputs:
+  ApiUrl:
+    Description: HTTP API endpoint
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"

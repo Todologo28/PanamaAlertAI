@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Token - PanamaAlert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style nonce="{{ csp_nonce }}">
+        body.auth {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            position: relative;
+        }
+        body.auth::before {
+            content: ''; position: fixed; inset: 0; z-index: 0;
+            background:
+                radial-gradient(ellipse at 30% 40%, rgba(14,165,228,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 70%, rgba(6,182,212,0.06) 0%, transparent 40%);
+            pointer-events: none;
+        }
+        body.auth::after {
+            content: ''; position: fixed; inset: 0; z-index: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 48px 48px; pointer-events: none;
+        }
+
+        .auth-shell { position: relative; z-index: 1; }
+        .auth-card {
+            max-width: 460px; animation: fadeIn 0.5s ease;
+            background: rgba(255,255,255,0.06); backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05) inset;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        .brand-mark {
+            width: 44px; height: 44px; border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary, #0ea5e4), #06b6d4);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 800; font-size: 15px;
+            box-shadow: 0 4px 16px rgba(14,165,228,0.3);
+        }
+        .brand h1 { color: white; font-size: 20px; }
+        .brand p { color: rgba(255,255,255,0.5); font-size: 12px; }
+        .auth-title { color: white; }
+        .auth-subtitle { color: rgba(255,255,255,0.5); }
+
+        .setup-qr-section {
+            padding: 24px; border-radius: 14px; text-align: center;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 16px;
+        }
+        .setup-qr-section h3 { color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+        #qrcode { display: inline-block; padding: 12px; background: white; border-radius: 12px; }
+
+        .secret-block {
+            padding: 16px; border-radius: 12px; margin-bottom: 12px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+        }
+        .secret-block-label { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .secret-block-value { font-size: 13px; color: rgba(255,255,255,0.7); word-break: break-all; font-family: monospace; line-height: 1.5; }
+
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .btn-2fa {
+            padding: 12px; border: none; border-radius: 10px; font-weight: 700; font-size: 13px;
+            cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; text-decoration: none;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-2fa.primary {
+            background: linear-gradient(135deg, var(--primary, #0ea5e4), #0284c7); color: white;
+            box-shadow: 0 4px 16px rgba(14,165,228,0.3);
+        }
+        .btn-2fa.primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(14,165,228,0.4); }
+        .btn-2fa.secondary {
+            background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-2fa.secondary:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        .alert { padding: 12px 16px; border-radius: 10px; margin-bottom: 12px; font-size: 13px; font-weight: 600; }
+        .alert-error { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+        .alert-success { background: rgba(34,197,94,0.12); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+        .alert-info { background: rgba(14,165,228,0.1); color: rgba(255,255,255,0.7); border: 1px solid rgba(14,165,228,0.15); }
+
+        .security-note {
+            display: flex; align-items: center; gap: 8px; padding: 10px 14px; margin-top: 16px;
+            border-radius: 10px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.15);
+            font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600;
+        }
+        .security-note svg { flex-shrink: 0; color: #f59e0b; }
+    </style>
+</head>
+<body class="auth">
+<div class="auth-shell">
+    <div class="auth-card">
+        <div class="brand">
+            <img src="{{ url_for('static', filename='logo-compact.svg') }}" alt="PA" width="44" height="44" style="border-radius:14px;">
+            <div>
+                <h1>PanamaAlert</h1>
+                <p>Plataforma de Inteligencia Ciudadana</p>
+            </div>
+        </div>
+
+        <h2 class="auth-title">Autenticacion 2FA</h2>
+        <p class="auth-subtitle">Escanea el codigo QR con Google Authenticator, Authy u otra app TOTP.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="setup-qr-section">
+            <h3>Escanea con tu App</h3>
+            <div id="qrcode"></div>
+        </div>
+
+        <div class="secret-block">
+            <div class="secret-block-label">Clave secreta (ingreso manual)</div>
+            <div class="secret-block-value">{{ secret }}</div>
+        </div>
+
+        <div class="secret-block">
+            <div class="secret-block-label">URI OTPAuth</div>
+            <div class="secret-block-value">{{ otpauth }}</div>
+        </div>
+
+        <div class="security-note">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Guarda la clave secreta en un lugar seguro. No podras verla nuevamente.
+        </div>
+
+        <div class="btn-row">
+            <a href="{{ url_for('auth.token') }}" class="btn-2fa primary">Continuar</a>
+            <a href="{{ url_for('auth.login') }}" class="btn-2fa secondary">Volver</a>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script nonce="{{ csp_nonce }}">
+    (function() {
+        const otpauth = {{ otpauth | tojson }};
+        const el = document.getElementById('qrcode');
+        if (el && otpauth) {
+            new QRCode(el, { text: otpauth, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
+        }
+    })();
+</script>
+</body>
+</html>

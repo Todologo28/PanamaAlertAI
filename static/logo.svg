@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="shield" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0ea5e4"/>
+      <stop offset="100%" style="stop-color:#0369a1"/>
+    </linearGradient>
+    <linearGradient id="pulse" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#16a34a"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="92" fill="#0f172a"/>
+  <circle cx="100" cy="100" r="88" fill="none" stroke="url(#shield)" stroke-width="2.5" opacity="0.4"/>
+  <!-- Shield body -->
+  <path d="M100 28 L148 52 L148 98 C148 130 128 156 100 172 C72 156 52 130 52 98 L52 52 Z"
+        fill="url(#shield)" opacity="0.9"/>
+  <path d="M100 28 L148 52 L148 98 C148 130 128 156 100 172 C72 156 52 130 52 98 L52 52 Z"
+        fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+  <!-- Location pin inside shield -->
+  <circle cx="100" cy="86" r="14" fill="white" opacity="0.95"/>
+  <circle cx="100" cy="86" r="6" fill="#0ea5e4"/>
+  <path d="M100 100 L92 112 Q100 122 108 112 Z" fill="white" opacity="0.95"/>
+  <!-- Signal waves (alert/monitoring) -->
+  <path d="M68 68 Q58 78 68 90" fill="none" stroke="url(#pulse)" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)" opacity="0.8"/>
+  <path d="M58 60 Q44 76 58 96" fill="none" stroke="url(#pulse)" stroke-width="2" stroke-linecap="round" filter="url(#glow)" opacity="0.5"/>
+  <path d="M132 68 Q142 78 132 90" fill="none" stroke="url(#pulse)" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)" opacity="0.8"/>
+  <path d="M142 60 Q156 76 142 96" fill="none" stroke="url(#pulse)" stroke-width="2" stroke-linecap="round" filter="url(#glow)" opacity="0.5"/>
+  <!-- AI circuit dots -->
+  <circle cx="76" cy="140" r="3" fill="#22c55e" opacity="0.7"/>
+  <circle cx="100" cy="148" r="3" fill="#22c55e" opacity="0.7"/>
+  <circle cx="124" cy="140" r="3" fill="#22c55e" opacity="0.7"/>
+  <line x1="76" y1="140" x2="100" y2="148" stroke="#22c55e" stroke-width="1" opacity="0.4"/>
+  <line x1="100" y1="148" x2="124" y2="140" stroke="#22c55e" stroke-width="1" opacity="0.4"/>
+</svg>

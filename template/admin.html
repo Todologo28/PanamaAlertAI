@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Centro de Moderacion - PanamaAlert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <!-- TOP BAR -->
+    <header class="topbar">
+        <div class="topbar-brand">
+            <img src="{{ url_for('static', filename='logo-compact.svg') }}" alt="PA" width="36" height="36" style="border-radius:8px;">
+            <div>
+                <h1>PanamaAlert <span class="pro-badge">ADMIN</span></h1>
+                <p>Centro de Moderacion</p>
+            </div>
+        </div>
+        <div class="topbar-actions">
+            <a href="/app" class="topbar-link">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                Mapa
+            </a>
+            <a href="/dashboard" class="topbar-link">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                Dashboard
+            </a>
+            <div class="topbar-user hide-mobile">
+                <span class="user-avatar">{{ session.get('username', 'A')[0] | upper }}</span>
+                <span class="user-name">{{ session.get('username', 'Admin') }}</span>
+            </div>
+            <form method="POST" action="{{ url_for('auth.logout') }}" style="margin:0">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button class="logout-btn" type="submit">Salir</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="page-container">
+        <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+            <div>
+                <h1 class="page-title">Centro de Moderacion</h1>
+                <p class="page-subtitle">Gestiona reportes con moderacion inteligente asistida por IA</p>
+            </div>
+            <div class="nav-links">
+                <a href="/app" class="nav-link">Volver al Mapa</a>
+            </div>
+        </div>
+
+        <div id="adminFeedback" class="feedback-panel">
+            <div class="feedback-title">Estado de moderacion</div>
+            <div class="feedback-copy"></div>
+        </div>
+        <div id="adminToasts" class="toast-stack"></div>
+        <div id="adminConfirmModal" style="display:none;position:fixed;inset:0;z-index:2200;background:rgba(15,23,42,0.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px;">
+            <div style="background:#fff;border-radius:18px;max-width:420px;width:100%;padding:24px;box-shadow:0 24px 48px rgba(15,23,42,0.2);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                    <h3 id="adminConfirmTitle" style="margin:0;font-size:18px;font-weight:800;color:var(--ink);">Confirmar accion</h3>
+                    <button id="adminConfirmClose" style="border:none;background:transparent;font-size:20px;color:#64748b;cursor:pointer;">&times;</button>
+                </div>
+                <p id="adminConfirmMessage" style="margin:0 0 16px;font-size:13px;line-height:1.6;color:#475569;"></p>
+                <div class="pro-btn-row" style="justify-content:flex-end;">
+                    <button id="adminConfirmCancel" class="btn-pro-ghost" type="button">Cancelar</button>
+                    <button id="adminConfirmAccept" class="btn-pro-primary" type="button">Continuar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Stats Bar -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px;" id="aiStatsBar">
+            <div class="stat-card" style="padding:16px;">
+                <div class="stat-label">Analisis IA</div>
+                <div class="stat-value" id="aiTotal" style="font-size:24px;">--</div>
+            </div>
+            <div class="stat-card" style="padding:16px;">
+                <div class="stat-label">Aprobados IA</div>
+                <div class="stat-value" id="aiApproved" style="font-size:24px;color:var(--success);">--</div>
+            </div>
+            <div class="stat-card" style="padding:16px;">
+                <div class="stat-label">En Revision</div>
+                <div class="stat-value" id="aiReview" style="font-size:24px;color:var(--warning);">--</div>
+            </div>
+            <div class="stat-card" style="padding:16px;">
+                <div class="stat-label">Rechazados IA</div>
+                <div class="stat-value" id="aiRejected" style="font-size:24px;color:var(--danger);">--</div>
+            </div>
+            <div class="stat-card" style="padding:16px;">
+                <div class="stat-label">Latencia Prom.</div>
+                <div class="stat-value" id="aiLatency" style="font-size:24px;">--</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div style="display:grid;grid-template-columns:200px 1fr auto;gap:12px;margin-bottom:24px;padding:16px;background:#fff;border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow-xs);">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Estado</label>
+                <select id="filter-status" style="padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:var(--font);outline:none;">
+                    <option value="">Todos</option>
+                    <option value="pending" selected>Pendientes</option>
+                    <option value="verified">Verificados</option>
+                    <option value="resolved">Resueltos</option>
+                    <option value="dismissed">Descartados</option>
+                </select>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Buscar</label>
+                <input type="text" id="search-incidents" placeholder="Buscar por titulo o descripcion..." style="padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:var(--font);outline:none;">
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:8px;">
+                <button class="btn-primary" style="height:42px;font-size:12px;" data-action="refresh-incidents">Actualizar</button>
+                <button class="btn-secondary" style="height:42px;font-size:12px;background:#e0e7ff;color:#4338ca;border-color:#4338ca;" data-action="bulk-ai" title="Moderar todos los pendientes con IA">IA Masivo</button>
+            </div>
+        </div>
+
+        <!-- Incidents Grid -->
+        <div id="incidents-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(480px,1fr));gap:16px;">
+            <div style="text-align:center;color:var(--muted);padding:40px;grid-column:1/-1;">Cargando reportes...</div>
+        </div>
+    </div>
+
+    <script nonce="{{ csp_nonce }}">
+        window.csrfToken = {{ csrf_token | tojson }};
+
+        function setAdminFeedback(title, message, type = 'success') {
+            const panel = document.getElementById('adminFeedback');
+            if (!panel) return;
+            panel.className = `feedback-panel ${type} show`;
+            panel.querySelector('.feedback-title').textContent = title || 'Estado de moderacion';
+            panel.querySelector('.feedback-copy').textContent = message || '';
+        }
+
+        function showToast(title, message, type = 'success') {
+            const stack = document.getElementById('adminToasts');
+            if (!stack) return;
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<div class="toast-title">${esc(title || 'PanamaAlert')}</div><div class="toast-copy">${esc(message || '')}</div>`;
+            stack.appendChild(toast);
+            setTimeout(() => toast.remove(), 4200);
+        }
+
+        let adminConfirmResolver = null;
+        function closeAdminConfirm(result = false) {
+            document.getElementById('adminConfirmModal').style.display = 'none';
+            if (adminConfirmResolver) {
+                adminConfirmResolver(result);
+                adminConfirmResolver = null;
+            }
+        }
+
+        function confirmBulkModeration(totalPending) {
+            document.getElementById('adminConfirmTitle').textContent = 'Moderacion masiva con IA';
+            document.getElementById('adminConfirmMessage').textContent = `Se evaluaran ${totalPending} incidente(s) pendientes en este lote. La IA ayuda a priorizar, pero los casos ambiguos siguen requiriendo criterio humano.`;
+            document.getElementById('adminConfirmModal').style.display = 'flex';
+            return new Promise(resolve => {
+                adminConfirmResolver = resolve;
+            });
+        }
+
+        // Load AI stats
+        async function loadAIStats() {
+            try {
+                const res = await fetch('/api/ai/stats', {credentials:'same-origin'});
+                if (!res.ok) return;
+                const data = await res.json();
+                document.getElementById('aiTotal').textContent = data.total_analyses || 0;
+                document.getElementById('aiApproved').textContent = data.approved || 0;
+                document.getElementById('aiReview').textContent = data.review || 0;
+                document.getElementById('aiRejected').textContent = data.rejected || 0;
+                document.getElementById('aiLatency').textContent = (data.avg_latency_ms || 0) + 'ms';
+            } catch(e) { console.error('AI stats error:', e); }
+        }
+
+        async function loadIncidents() {
+            try {
+                const status = document.getElementById('filter-status').value;
+                const search = document.getElementById('search-incidents').value.trim().toLowerCase();
+                const res = await fetch('/api/incidents', {credentials:'same-origin'});
+                let incidents = await res.json();
+
+                if (status) incidents = incidents.filter(i => i.status === status);
+                if (search) incidents = incidents.filter(i =>
+                    (i.title || '').toLowerCase().includes(search) ||
+                    (i.description || '').toLowerCase().includes(search)
+                );
+                renderIncidents(incidents);
+            } catch (e) { console.error('Error:', e); }
+        }
+
+        document.getElementById('filter-status').addEventListener('change', loadIncidents);
+        document.getElementById('search-incidents').addEventListener('input', function() {
+            clearTimeout(this._debounce);
+            this._debounce = setTimeout(loadIncidents, 300);
+        });
+
+        function renderIncidents(incidents) {
+            const container = document.getElementById('incidents-container');
+
+            if (!incidents || incidents.length === 0) {
+                container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--muted);grid-column:1/-1;">
+                    <div style="font-size:40px;margin-bottom:12px;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--success);"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div style="font-size:16px;font-weight:800;color:var(--ink);margin-bottom:4px;">Sin reportes pendientes</div>
+                    <p style="font-size:13px;">Todos los incidentes han sido procesados.</p>
+                </div>`;
+                return;
+            }
+
+            container.innerHTML = incidents.map(inc => {
+                const ai = inc.ai_analysis;
+                const incId = inc.incident_id || inc.id;
+                const reporter = inc.reporter_profile || {};
+                const explainability = inc.analysis_explainability || {};
+                const moderation = inc.moderation_insights || {};
+                const statusColors = {
+                    pending:   {bg:'#fef3c7',color:'#92400e',label:'Pendiente'},
+                    verified:  {bg:'#d1fae5',color:'#065f46',label:'Verificado'},
+                    resolved:  {bg:'#dbeafe',color:'#1e40af',label:'Resuelto'},
+                    dismissed: {bg:'#fee2e2',color:'#991b1b',label:'Descartado'}
+                };
+                const sc = statusColors[inc.status] || statusColors.pending;
+
+                let aiSection = '';
+                if (ai) {
+                    const aiColors = {approved:'#10b981',review:'#f59e0b',rejected:'#ef4444'};
+                    const aiLabels = {approved:'Aprobado',review:'Revision',rejected:'Rechazado'};
+                    const conf = Math.round((ai.confidence || 0) * 100);
+                    aiSection = `<div style="display:flex;align-items:center;gap:6px;margin-top:8px;">
+                        <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;background:${aiColors[ai.decision]}15;color:${aiColors[ai.decision]};">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                            IA: ${aiLabels[ai.decision] || ai.decision} (${conf}%)
+                        </span>
+                        ${ai.alert_level && ai.alert_level !== 'none' ? `<span style="font-size:10px;font-weight:600;padding:3px 6px;border-radius:4px;background:#f1f5f9;color:var(--muted);text-transform:uppercase;">${ai.alert_level}</span>` : ''}
+                    </div>`;
+                }
+
+                let moderationSection = '';
+                const locationPrecision = moderation.location_precision || 'unknown';
+                const locationColors = {
+                    specific: { bg:'#dcfce7', color:'#166534', label:'Ubicacion clara' },
+                    generic: { bg:'#fee2e2', color:'#991b1b', label:'Ubicacion generica' },
+                    unknown: { bg:'#fef3c7', color:'#92400e', label:'Ubicacion pendiente' }
+                };
+                const lc = locationColors[locationPrecision] || locationColors.unknown;
+                const duplicateItems = moderation.possible_duplicates || [];
+
+                moderationSection = `<div style="padding:12px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;display:grid;gap:8px;">
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+                        <span style="padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;background:${lc.bg};color:${lc.color};">${lc.label}</span>
+                        <span style="padding:4px 8px;border-radius:999px;font-size:10px;font-weight:700;background:#ede9fe;color:#6d28d9;">Fuente: ${esc(moderation.source_label || 'usuario')}</span>
+                    </div>
+                    <div style="font-size:11px;color:#334155;line-height:1.5;">
+                        <strong>Zona detectada:</strong> ${esc(moderation.zone_label || 'No definida por el bot')}
+                    </div>
+                    <div style="font-size:11px;color:#475569;line-height:1.5;">
+                        <strong>Audiencia:</strong> ${esc(moderation.audience_label || 'General')}
+                    </div>
+                    ${duplicateItems.length ? `
+                        <div style="display:grid;gap:6px;">
+                            <div style="font-size:11px;font-weight:800;color:#0f172a;">Posibles duplicados</div>
+                            ${duplicateItems.map(dup => `
+                                <div style="padding:8px 10px;border-radius:8px;background:#fff;border:1px solid #e2e8f0;display:grid;gap:4px;">
+                                    <div style="font-size:11px;font-weight:700;color:#0f172a;">#${dup.incident_id} ${esc(dup.title || 'Incidente')}</div>
+                                    <div style="font-size:10px;color:#64748b;">${dup.distance_m !== null ? `${dup.distance_m}m de distancia` : 'Distancia no calculada'} · ${dup.common_terms} coincidencias de texto</div>
+                                    <div>
+                                        <button onclick="markDuplicate(${incId}, ${dup.incident_id})" style="padding:6px 10px;border:1px solid #f97316;background:#fff7ed;color:#c2410c;border-radius:7px;font-size:10px;font-weight:800;cursor:pointer;font-family:var(--font);">Marcar como duplicado</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>` : '<div style="font-size:11px;color:#64748b;">No se detectaron duplicados cercanos para este incidente.</div>'}
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button onclick="adjustLocationPrompt(${incId}, ${Number(inc.lat || 0)}, ${Number(inc.lng || 0)})" style="padding:7px 10px;border:1px solid #0ea5e4;background:#f0f9ff;color:#0369a1;border-radius:7px;font-size:10px;font-weight:800;cursor:pointer;font-family:var(--font);">Corregir ubicacion</button>
+                    </div>
+                </div>`;
+
+                return `<div style="background:#fff;border-radius:14px;padding:20px;border:1px solid var(--border);box-shadow:var(--shadow-xs);transition:all 0.2s;display:flex;flex-direction:column;gap:12px;" onmouseover="this.style.boxShadow='var(--shadow)'" onmouseout="this.style.boxShadow='var(--shadow-xs)'">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                        <div style="flex:1;">
+                            <div style="font-size:15px;font-weight:800;color:var(--ink);margin-bottom:4px;letter-spacing:-0.3px;">${esc(inc.title || '')}</div>
+                            <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+                                <span style="padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;background:${sc.bg};color:${sc.color};text-transform:uppercase;letter-spacing:0.3px;">${sc.label}</span>
+                                <span style="padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;" class="sev-${inc.severity}">SEV ${inc.severity}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--muted);">
+                        <span>${esc(inc.reporter_username || 'Usuario')}</span>
+                        <span>${esc(inc.category_name || 'General')}</span>
+                        <span>${new Date(inc.created_at).toLocaleString('es-PA',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
+                    </div>
+
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        <span style="padding:4px 8px;border-radius:999px;font-size:10px;font-weight:700;background:${reporter.credibility_band === 'high' ? '#dcfce7' : reporter.credibility_band === 'medium' ? '#fef3c7' : '#fee2e2'};color:${reporter.credibility_band === 'high' ? '#166534' : reporter.credibility_band === 'medium' ? '#92400e' : '#991b1b'};">
+                            ${esc(reporter.credibility_label || 'Credibilidad sin historial')}
+                        </span>
+                        <span style="padding:4px 8px;border-radius:999px;font-size:10px;font-weight:600;background:#eff6ff;color:#1d4ed8;">
+                            ${esc(explainability.source_label || (ai ? 'Respuesta por IA' : 'Respuesta por reglas'))}
+                        </span>
+                    </div>
+
+                    <div style="padding:10px;background:#f8fafc;border-radius:8px;font-size:12px;color:var(--ink-light);line-height:1.5;border-left:3px solid var(--primary);">
+                        ${esc(inc.description || '')}
+                    </div>
+
+                    ${aiSection}
+                    ${moderationSection}
+
+                    ${explainability.signals_used && explainability.signals_used.length ? `
+                        <div style="font-size:11px;color:#475569;line-height:1.5;">
+                            <strong>Senales usadas:</strong> ${esc(explainability.signals_used.join(', '))}
+                        </div>` : ''}
+
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding-top:10px;border-top:1px solid var(--border);">
+                        <button onclick="changeStatus(${incId},'verified')" style="padding:8px;border:1px solid var(--success);background:var(--success-light);color:#065f46;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseover="this.style.background='var(--success)';this.style.color='#fff'" onmouseout="this.style.background='var(--success-light)';this.style.color='#065f46'">Verificar</button>
+                        <button onclick="changeStatus(${incId},'resolved')" style="padding:8px;border:1px solid #3b82f6;background:#dbeafe;color:#1e40af;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseover="this.style.background='#3b82f6';this.style.color='#fff'" onmouseout="this.style.background='#dbeafe';this.style.color='#1e40af'">Resolver</button>
+                        <button onclick="changeStatus(${incId},'dismissed')" style="padding:8px;border:1px solid var(--danger);background:var(--danger-light);color:#991b1b;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseover="this.style.background='var(--danger)';this.style.color='#fff'" onmouseout="this.style.background='var(--danger-light)';this.style.color='#991b1b'">Descartar</button>
+                        <button onclick="aiModerate(${incId},this)" style="padding:8px;border:1px solid #6366f1;background:#e0e7ff;color:#4338ca;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseover="this.style.background='#6366f1';this.style.color='#fff'" onmouseout="this.style.background='#e0e7ff';this.style.color='#4338ca'">IA Moderar</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function esc(s) {
+            const div = document.createElement('div');
+            div.textContent = s;
+            return div.innerHTML;
+        }
+
+        async function changeStatus(id, status) {
+            try {
+                const res = await fetch(`/api/incidents/${id}/status`, {
+                    method: 'PUT',
+                    credentials: 'same-origin',
+                    headers: {'Content-Type':'application/json', 'X-CSRF-Token': window.csrfToken},
+                    body: JSON.stringify({status})
+                });
+                if (!res.ok) throw new Error('Error actualizando');
+                loadIncidents();
+                loadAIStats();
+                showToast('Estado actualizado', `El incidente #${id} fue movido a ${status}.`, 'success');
+            } catch (e) {
+                showToast('No se pudo actualizar', e.message, 'error');
+            }
+        }
+
+        async function aiModerate(id, btn) {
+            btn.disabled = true;
+            const origText = btn.textContent;
+            btn.textContent = 'Analizando...';
+            try {
+                const res = await fetch(`/api/ai/moderate/${id}`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {'Content-Type':'application/json', 'X-CSRF-Token': window.csrfToken}
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error IA');
+
+                const conf = Math.round((data.analysis.confidence || 0) * 100);
+                const decLabels = {approved:'APROBADO',review:'REVISION MANUAL',rejected:'RECHAZADO'};
+                setAdminFeedback(
+                    `Moderacion IA para incidente #${id}`,
+                    `Decision: ${decLabels[data.analysis.decision] || data.analysis.decision}\nConfianza: ${conf}%\nRazon: ${data.analysis.reason}\nNivel de alerta: ${data.analysis.alert_level || 'ninguno'}\nFlags: ${(data.analysis.flags || []).join(', ') || 'ninguno'}`,
+                    data.analysis.decision === 'rejected' ? 'error' : data.analysis.decision === 'review' ? 'warning' : 'success'
+                );
+                showToast('Analisis completado', `La IA evaluo el incidente #${id} con ${conf}% de confianza.`, 'success');
+                loadIncidents();
+                loadAIStats();
+            } catch (err) {
+                setAdminFeedback('Moderacion no disponible', err.message, 'error');
+                showToast('Error de moderacion', err.message, 'error');
+            }
+            btn.disabled = false;
+            btn.textContent = origText;
+        }
+
+        async function adjustLocationPrompt(id, currentLat, currentLng) {
+            const latText = window.prompt('Nueva latitud para el incidente #' + id, currentLat);
+            if (latText === null) return;
+            const lngText = window.prompt('Nueva longitud para el incidente #' + id, currentLng);
+            if (lngText === null) return;
+
+            try {
+                const res = await fetch(`/api/incidents/${id}/admin-review`, {
+                    method: 'PUT',
+                    credentials: 'same-origin',
+                    headers: {'Content-Type':'application/json', 'X-CSRF-Token': window.csrfToken},
+                    body: JSON.stringify({lat: parseFloat(latText), lng: parseFloat(lngText)})
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'No se pudo corregir la ubicacion');
+                showToast('Ubicacion corregida', `El incidente #${id} fue actualizado con nuevas coordenadas.`, 'success');
+                loadIncidents();
+            } catch (err) {
+                showToast('No se pudo corregir', err.message, 'error');
+            }
+        }
+
+        async function markDuplicate(id, duplicateOf) {
+            try {
+                const res = await fetch(`/api/incidents/${id}/mark-duplicate`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {'Content-Type':'application/json', 'X-CSRF-Token': window.csrfToken},
+                    body: JSON.stringify({duplicate_of: duplicateOf})
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'No se pudo marcar como duplicado');
+                showToast('Duplicado marcado', `El incidente #${id} quedo vinculado a #${duplicateOf}.`, 'success');
+                loadIncidents();
+                loadAIStats();
+            } catch (err) {
+                showToast('No se pudo marcar', err.message, 'error');
+            }
+        }
+
+        // Bulk AI moderation
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+
+            if (btn.dataset.action === 'refresh-incidents') {
+                loadIncidents();
+                loadAIStats();
+            }
+
+            if (btn.dataset.action === 'bulk-ai') {
+                try {
+                    const res = await fetch('/api/incidents', {credentials:'same-origin'});
+                    const incidents = (await res.json()).filter(i => i.status === 'pending');
+                    const confirmed = await confirmBulkModeration(incidents.length);
+                    if (!confirmed) {
+                        showToast('Proceso cancelado', 'No se ejecuto la moderacion masiva.', 'warning');
+                        return;
+                    }
+                    btn.disabled = true;
+                    btn.textContent = 'Procesando...';
+                    let processed = 0;
+
+                    for (const inc of incidents.slice(0, 20)) {
+                        const id = inc.incident_id || inc.id;
+                        try {
+                            await fetch(`/api/ai/moderate/${id}`, {
+                                method:'POST', credentials:'same-origin',
+                                headers:{'Content-Type':'application/json','X-CSRF-Token':window.csrfToken}
+                            });
+                            processed++;
+                        } catch(e) { /* skip */ }
+                    }
+
+                    setAdminFeedback('Moderacion masiva finalizada', `La IA proceso ${processed} de ${incidents.length} incidentes pendientes en este lote.`, 'success');
+                    showToast('Proceso finalizado', `${processed}/${incidents.length} incidentes procesados.`, 'success');
+                    loadIncidents();
+                    loadAIStats();
+                } catch(e) {
+                    setAdminFeedback('No se pudo completar la moderacion masiva', e.message, 'error');
+                    showToast('Error en proceso masivo', e.message, 'error');
+                }
+
+                btn.disabled = false;
+                btn.textContent = 'IA Masivo';
+            }
+        });
+
+        // Initial load
+        document.getElementById('adminConfirmClose').onclick = () => closeAdminConfirm(false);
+        document.getElementById('adminConfirmCancel').onclick = () => closeAdminConfirm(false);
+        document.getElementById('adminConfirmAccept').onclick = () => closeAdminConfirm(true);
+        document.getElementById('adminConfirmModal').addEventListener('click', (e) => {
+            if (e.target.id === 'adminConfirmModal') closeAdminConfirm(false);
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('adminConfirmModal').style.display === 'flex') {
+                closeAdminConfirm(false);
+            }
+        });
+        loadIncidents();
+        loadAIStats();
+        setInterval(loadIncidents, 30000);
+        setInterval(loadAIStats, 60000);
+    </script>
+</body>
+</html>

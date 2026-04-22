@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <title>Mi Perfil - PanamaAlert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <!-- ══════ TOPBAR ══════ -->
+    <div class="topbar">
+        <div class="topbar-brand">
+            <img src="{{ url_for('static', filename='logo-compact.svg') }}" alt="PA" width="32" height="32" style="border-radius:8px;">
+            <span class="topbar-title">PanamaAlert</span>
+            <span class="topbar-badge">Intelligence Platform</span>
+        </div>
+        <nav class="topbar-nav">
+            <a href="/app" class="topbar-link">Mapa</a>
+            <a href="/dashboard" class="topbar-link">Dashboard</a>
+            <a href="/profile" class="topbar-link active">Perfil</a>
+            <a href="/assistant" class="topbar-link">Asistente IA</a>
+        </nav>
+    </div>
+
+    <div class="profile-page">
+        <!-- HEADER -->
+        <div class="profile-header">
+            <div class="profile-avatar" id="profile-avatar">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="profile-header-info">
+                <h1 id="header-username">Cargando...</h1>
+                <p class="profile-header-sub">
+                    <span class="profile-role-badge" id="header-role">--</span>
+                    <span class="profile-since" id="header-since">Miembro desde --</span>
+                </p>
+            </div>
+            <div class="profile-header-actions">
+                <a href="/app" class="btn-outline-sm">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Volver al Mapa
+                </a>
+            </div>
+        </div>
+
+        <div class="profile-grid">
+            <!-- CUENTA -->
+            <div class="pro-card">
+                <div class="pro-card-head">
+                    <div class="pro-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <h2>Mi Cuenta</h2>
+                </div>
+                <div id="profile-info" class="pro-info-list">
+                    <div class="pro-info-row"><span>Usuario</span><span id="username" class="pro-info-val">--</span></div>
+                    <div class="pro-info-row"><span>Correo</span><span id="email" class="pro-info-val">--</span></div>
+                    <div class="pro-info-row"><span>Rol</span><span id="role" class="pro-role-tag">--</span></div>
+                    <div class="pro-info-row"><span>Miembro desde</span><span id="created" class="pro-info-val">--</span></div>
+                    <div class="pro-info-row"><span>Credibilidad</span><span id="credibility-badge" class="pro-role-tag">--</span></div>
+                </div>
+            </div>
+
+            <!-- PLAN -->
+            <div class="pro-card">
+                <div class="pro-card-head">
+                    <div class="pro-card-icon accent">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    </div>
+                    <h2>Plan Actual</h2>
+                </div>
+                <div class="plan-hero" id="plan-badge">
+                    <div>
+                        <span class="plan-hero-name">Free</span>
+                        <span class="plan-hero-price">$0.00/mes</span>
+                    </div>
+                    <div class="plan-hero-glow"></div>
+                </div>
+                <div class="plan-meter-grid">
+                    <div class="plan-meter-item">
+                        <div class="plan-meter-label">Geofences</div>
+                        <div class="plan-meter-value" id="geofence-usage">0 / 1</div>
+                    </div>
+                    <div class="plan-meter-item">
+                        <div class="plan-meter-label">API Access</div>
+                        <div class="plan-meter-value" id="api-access">No</div>
+                    </div>
+                    <div class="plan-meter-item">
+                        <div class="plan-meter-label">Reportes hoy</div>
+                        <div class="plan-meter-value" id="alerts-usage">0 / 10</div>
+                    </div>
+                </div>
+                <div class="pro-btn-row">
+                    <button class="btn-pro-primary" data-action="upgrade-plan">Mejorar Plan</button>
+                    <button class="btn-pro-ghost" data-action="manage-subscription">Gestionar</button>
+                </div>
+                <div class="pro-btn-row" style="margin-top:12px;">
+                    <a href="/assistant" class="btn-pro-primary" style="width:100%;text-decoration:none;text-align:center;display:inline-flex;align-items:center;justify-content:center;">Abrir Asistente IA</a>
+                </div>
+                <div id="assistant-plan-note" style="margin-top:10px;font-size:12px;color:#64748b;"></div>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="pro-card">
+                <div class="pro-card-head">
+                    <div class="pro-card-icon warn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <h2>Contraseña</h2>
+                    <p class="pro-card-sub">Actualiza regularmente para mayor seguridad</p>
+                </div>
+                <form id="password-form" class="pro-form">
+                    <div class="pro-field">
+                        <label>Nueva Contraseña</label>
+                        <input type="password" id="new-password" placeholder="8+ caracteres, mayus, minus, numero" required>
+                    </div>
+                    <div class="pro-field">
+                        <label>Confirmar</label>
+                        <input type="password" id="confirm-password" placeholder="Repite tu contraseña" required>
+                    </div>
+                    <button type="submit" class="btn-pro-primary full">Actualizar Contraseña</button>
+                </form>
+            </div>
+
+            <!-- API KEYS -->
+            <div class="pro-card">
+                <div class="pro-card-head">
+                    <div class="pro-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                    </div>
+                    <h2>Claves API</h2>
+                    <p class="pro-card-sub">Integra PanamaAlert en tus apps</p>
+                </div>
+                <div id="api-keys-list" class="pro-keys-list"></div>
+                <button class="btn-pro-primary full" data-action="create-api-key">+ Nueva Clave API</button>
+            </div>
+
+            <!-- PAYMENT -->
+            <div class="pro-card">
+                <div class="pro-card-head">
+                    <div class="pro-card-icon accent">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    </div>
+                    <h2>Metodo de Pago</h2>
+                </div>
+                <div id="payment-method-display">
+                    <div id="payment-empty" class="pro-empty-state">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        <span>No hay metodo de pago registrado</span>
+                    </div>
+                    <div id="payment-card" class="credit-card-display" style="display:none;">
+                        <div class="cc-brand" id="card-brand-label">VISA</div>
+                        <div class="cc-number" id="card-number-masked">**** **** **** 1234</div>
+                        <div class="cc-bottom">
+                            <div><span class="cc-label">Titular</span><span class="cc-val" id="card-name-display">NOMBRE</span></div>
+                            <div><span class="cc-label">Expira</span><span class="cc-val" id="card-expiry-display">MM/YY</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="payment-actions" style="margin-top:16px;">
+                    <button class="btn-pro-primary full" data-action="show-card-form" id="btn-add-card">Agregar Tarjeta</button>
+                    <button class="btn-pro-danger full" data-action="remove-card" id="btn-remove-card" style="display:none;">Eliminar Tarjeta</button>
+                </div>
+                <form id="card-form" class="pro-form" style="display:none;margin-top:16px;">
+                    <div class="pro-field">
+                        <label>Numero de Tarjeta</label>
+                        <input type="text" id="card-number" placeholder="4242 4242 4242 4242" maxlength="19" required autocomplete="off">
+                        <div class="pro-field-hint">
+                            <span id="card-brand-icon" class="cc-brand-sm"></span>
+                            <span id="card-luhn-status"></span>
+                        </div>
+                    </div>
+                    <div class="pro-field">
+                        <label>Nombre del Titular</label>
+                        <input type="text" id="card-name" placeholder="JUAN PEREZ" required>
+                    </div>
+                    <div class="pro-field-row">
+                        <div class="pro-field">
+                            <label>Expiracion</label>
+                            <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+                        <div class="pro-field">
+                            <label>CVV</label>
+                            <input type="text" id="card-cvv" placeholder="123" maxlength="4" required autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="pro-btn-row">
+                        <button type="submit" class="btn-pro-primary">Guardar</button>
+                        <button type="button" class="btn-pro-ghost" data-action="cancel-card-form">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- AI ACTIVITY -->
+            <div class="pro-card">
+                <div class="pro-card-head">
+                    <div class="pro-card-icon ai">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4v1h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2V6a4 4 0 0 1 4-4z"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg>
+                    </div>
+                    <h2>Actividad IA</h2>
+                    <p class="pro-card-sub">Agentes de inteligencia artificial activos</p>
+                </div>
+                <div class="ai-agent-list">
+                    <div class="ai-agent-row">
+                        <div class="ai-agent-dot green"></div>
+                        <div>
+                            <div class="ai-agent-name">Fake Ping Detector</div>
+                            <div class="ai-agent-desc">Detecta reportes fraudulentos</div>
+                        </div>
+                    </div>
+                    <div class="ai-agent-row">
+                        <div class="ai-agent-dot green"></div>
+                        <div>
+                            <div class="ai-agent-name">Data Analyst Agent</div>
+                            <div class="ai-agent-desc">Analisis predictivo de zonas</div>
+                        </div>
+                    </div>
+                    <div class="ai-agent-row">
+                        <div class="ai-agent-dot green"></div>
+                        <div>
+                            <div class="ai-agent-name">Smart Moderator</div>
+                            <div class="ai-agent-desc">Moderacion automatica de contenido</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ai-stats-mini" id="ai-stats-mini">
+                    <div class="ai-stat-chip"><span class="ai-stat-num" id="my-incidents">--</span> Reportes</div>
+                    <div class="ai-stat-chip"><span class="ai-stat-num" id="my-verified">--</span> Verificados</div>
+                </div>
+            </div>
+
+            <!-- GEOFENCES -->
+            <div class="pro-card full-width">
+                <div class="pro-card-head">
+                    <div class="pro-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <h2>Mis Zonas de Alerta</h2>
+                    <p class="pro-card-sub">Recibe notificaciones cuando hay incidentes en estas areas</p>
+                </div>
+                <div id="geofences-list" class="geofence-grid"></div>
+                <button class="btn-pro-primary full" data-action="add-geofence" style="margin-top:16px;">+ Crear Nueva Zona</button>
+            </div>
+
+            <!-- PREFERENCES -->
+            <div class="pro-card full-width">
+                <div class="pro-card-head">
+                    <div class="pro-card-icon warn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </div>
+                    <h2>Preferencias de Alerta</h2>
+                </div>
+                <div class="pref-grid">
+                    <div class="pref-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="push-enabled" checked>
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                            <span>Notificaciones Push</span>
+                        </label>
+                        <p class="pref-hint">Alertas en tiempo real en tu dispositivo</p>
+                    </div>
+                    <div class="pref-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="email-enabled">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                            <span>Notificaciones Email</span>
+                        </label>
+                        <p class="pref-hint">Resumen diario a tu correo</p>
+                    </div>
+                    <div class="pref-item">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="browser-notifications">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                            <span>Alertas del navegador</span>
+                        </label>
+                        <p class="pref-hint">Avisos visibles mientras tengas permiso del navegador</p>
+                    </div>
+                    <div class="pref-item">
+                        <label class="pref-select-label">Nivel Minimo de Alerta</label>
+                        <select id="min-alert-level" class="pro-select">
+                            <option value="low">Bajo</option>
+                            <option value="medium" selected>Medio</option>
+                            <option value="high">Alto</option>
+                            <option value="critical">Critico</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top:16px;">
+                    <label class="pref-select-label" style="display:block;margin-bottom:8px;">Tipos de incidente prioritarios</label>
+                    <div id="incident-type-prefs" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+                </div>
+                <div class="pro-btn-row" style="margin-top:16px;">
+                    <button class="btn-pro-ghost" style="flex:1;" data-action="test-email">Correo de prueba</button>
+                    <button class="btn-pro-primary" style="flex:1;" data-action="send-summary-email">Enviar resumen ahora</button>
+                </div>
+                <button class="btn-pro-primary full" style="margin-top:20px;" data-action="save-preferences">Guardar Preferencias</button>
+            </div>
+
+            <!-- DANGER ZONE -->
+            <div class="pro-card full-width danger-zone">
+                <div class="pro-card-head">
+                    <div class="pro-card-icon danger">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </div>
+                    <h2>Zona de Peligro</h2>
+                </div>
+                <p class="danger-hint">Estas acciones no se pueden deshacer.</p>
+                <div class="pro-btn-row">
+                    <button class="btn-pro-danger" data-action="logout">Cerrar Sesion</button>
+                    <button class="btn-pro-danger-fill" data-action="delete-account">Eliminar Cuenta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PLAN UPGRADE MODAL -->
+    <div id="planModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px;">
+        <div style="background:#fff;border-radius:20px;max-width:900px;width:100%;max-height:90vh;overflow-y:auto;padding:32px;box-shadow:0 25px 50px rgba(0,0,0,0.25);position:relative;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                <div>
+                    <h2 style="font-size:22px;font-weight:800;margin:0;">Elige tu plan</h2>
+                    <p style="font-size:13px;color:#94a3b8;margin:4px 0 0;">Desbloquea funcionalidades avanzadas de seguridad e inteligencia</p>
+                </div>
+                <button id="planModalClose" style="background:rgba(0,0,0,0.05);border:none;width:36px;height:36px;border-radius:10px;font-size:20px;cursor:pointer;color:#64748b;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" title="Cerrar">&#10005;</button>
+            </div>
+            <div id="plansGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+                <div style="text-align:center;padding:40px;color:#94a3b8;">Cargando planes...</div>
+            </div>
+            <div style="text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid rgba(0,0,0,0.06);">
+                <button id="planModalCancel" style="padding:10px 28px;border:1.5px solid rgba(0,0,0,0.1);border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;background:transparent;color:#64748b;font-family:Inter,sans-serif;transition:all 0.2s;">Mantener plan actual</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast-container" class="toast-container"></div>
+    <div id="profileActionModal" style="display:none;position:fixed;inset:0;z-index:2100;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px;">
+        <div style="background:#fff;border-radius:20px;max-width:520px;width:100%;padding:28px;box-shadow:0 25px 50px rgba(0,0,0,0.25);position:relative;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px;">
+                <div>
+                    <h3 id="profileActionTitle" style="font-size:22px;font-weight:800;margin:0;color:#0f172a;">Confirmar accion</h3>
+                    <p id="profileActionCopy" style="font-size:13px;color:#64748b;margin:6px 0 0;line-height:1.6;"></p>
+                </div>
+                <button id="profileActionClose" style="background:rgba(0,0,0,0.05);border:none;width:36px;height:36px;border-radius:10px;font-size:20px;cursor:pointer;color:#64748b;display:flex;align-items:center;justify-content:center;">&#10005;</button>
+            </div>
+            <div id="profileActionFields" style="display:grid;gap:12px;margin-bottom:18px;"></div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
+                <button id="profileActionCancel" style="padding:10px 20px;border:1.5px solid rgba(0,0,0,0.1);border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;background:transparent;color:#64748b;font-family:Inter,sans-serif;">Cancelar</button>
+                <button id="profileActionConfirm" style="padding:10px 20px;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;background:linear-gradient(135deg,#0ea5e4,#0284c7);color:#fff;font-family:Inter,sans-serif;">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <style nonce="{{ csp_nonce }}">
+        /* ── Profile Page Layout ── */
+        .profile-page { margin-top: 64px; padding: 32px 24px; background: var(--bg-primary, #f8fafc); min-height: calc(100vh - 64px); }
+
+        .profile-header {
+            display: flex; align-items: center; gap: 20px; max-width: 1200px; margin: 0 auto 32px;
+            padding: 28px 32px; background: rgba(255,255,255,0.7); backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        }
+        .profile-avatar {
+            width: 72px; height: 72px; border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--primary, #0ea5e4), #06b6d4); color: white; flex-shrink: 0;
+        }
+        .profile-header-info h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 0; }
+        .profile-header-sub { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+        .profile-role-badge {
+            display: inline-flex; padding: 3px 10px; background: rgba(14,165,228,0.12); color: var(--primary, #0ea5e4);
+            border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .profile-since { font-size: 13px; color: #94a3b8; }
+        .profile-header-actions { margin-left: auto; }
+        .btn-outline-sm {
+            display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+            background: transparent; border: 1.5px solid rgba(14,165,228,0.3); color: var(--primary, #0ea5e4);
+            border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s;
+        }
+        .btn-outline-sm:hover { background: var(--primary, #0ea5e4); color: white; border-color: var(--primary, #0ea5e4); }
+
+        /* ── Grid ── */
+        .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+
+        /* ── Cards ── */
+        .pro-card {
+            background: rgba(255,255,255,0.75); backdrop-filter: blur(16px) saturate(160%);
+            border-radius: 18px; padding: 24px; border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04); transition: all 0.25s;
+        }
+        .pro-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.08); border-color: rgba(14,165,228,0.15); }
+        .pro-card.full-width { grid-column: 1 / -1; }
+
+        .pro-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(0,0,0,0.06); flex-wrap: wrap; }
+        .pro-card-head h2 { font-size: 16px; font-weight: 700; margin: 0; letter-spacing: -0.3px; }
+        .pro-card-sub { font-size: 12px; color: #94a3b8; width: 100%; margin: 4px 0 0 32px; }
+
+        .pro-card-icon {
+            width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            background: rgba(14,165,228,0.1); color: var(--primary, #0ea5e4); flex-shrink: 0;
+        }
+        .pro-card-icon.accent { background: rgba(6,182,212,0.1); color: #06b6d4; }
+        .pro-card-icon.warn { background: rgba(245,158,11,0.1); color: #f59e0b; }
+        .pro-card-icon.ai { background: rgba(139,92,246,0.1); color: #8b5cf6; }
+        .pro-card-icon.danger { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+        /* ── Info rows ── */
+        .pro-info-list { display: flex; flex-direction: column; }
+        .pro-info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.04); font-size: 13px; }
+        .pro-info-row:last-child { border-bottom: none; }
+        .pro-info-row > span:first-child { font-weight: 600; color: #334155; }
+        .pro-info-val { color: #64748b; font-weight: 500; }
+        .pro-role-tag {
+            display: inline-flex; padding: 3px 10px; background: rgba(14,165,228,0.1); color: var(--primary, #0ea5e4);
+            border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+        }
+
+        /* ── Plan ── */
+        .plan-hero {
+            position: relative; padding: 20px; border-radius: 14px; overflow: hidden;
+            background: linear-gradient(135deg, rgba(14,165,228,0.08), rgba(6,182,212,0.12));
+            border: 1.5px solid rgba(14,165,228,0.2);
+        }
+        .plan-hero-name { font-size: 20px; font-weight: 800; color: #0e7490; display: block; }
+        .plan-hero-price { font-size: 14px; font-weight: 600; color: var(--primary, #0ea5e4); }
+        .plan-hero-glow { position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: radial-gradient(circle, rgba(14,165,228,0.15), transparent); border-radius: 50%; }
+
+        .plan-meter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+        .plan-meter-item { padding: 12px; background: rgba(0,0,0,0.02); border-radius: 10px; text-align: center; }
+        .plan-meter-label { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .plan-meter-value { font-size: 15px; font-weight: 700; color: #334155; margin-top: 4px; }
+
+        /* ── Forms ── */
+        .pro-form { display: flex; flex-direction: column; gap: 14px; }
+        .pro-field { display: flex; flex-direction: column; gap: 6px; }
+        .pro-field label { font-weight: 600; font-size: 12px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+        .pro-field input, .pro-select {
+            padding: 10px 14px; border: 1.5px solid rgba(0,0,0,0.08); border-radius: 10px;
+            font-size: 14px; font-family: 'Inter', sans-serif; background: rgba(255,255,255,0.8);
+            transition: all 0.2s;
+        }
+        .pro-field input:focus, .pro-select:focus { border-color: var(--primary, #0ea5e4); box-shadow: 0 0 0 3px rgba(14,165,228,0.12); outline: none; }
+        .pro-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .pro-field-hint { display: flex; align-items: center; gap: 6px; font-size: 12px; margin-top: 2px; }
+        .cc-brand-sm { font-weight: 700; color: var(--primary, #0ea5e4); font-size: 12px; }
+
+        /* ── Buttons ── */
+        .pro-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+        .btn-pro-primary {
+            padding: 10px 20px; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;
+            background: linear-gradient(135deg, var(--primary, #0ea5e4), #0284c7); color: white;
+            box-shadow: 0 2px 8px rgba(14,165,228,0.25); transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .btn-pro-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(14,165,228,0.35); }
+        .btn-pro-primary.full { width: 100%; }
+
+        .btn-pro-ghost {
+            padding: 10px 20px; border: 1.5px solid rgba(0,0,0,0.08); border-radius: 10px; font-weight: 600;
+            font-size: 13px; cursor: pointer; background: transparent; color: #475569; transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-pro-ghost:hover { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.12); }
+
+        .btn-pro-danger {
+            padding: 10px 20px; border: 1.5px solid rgba(239,68,68,0.3); border-radius: 10px; font-weight: 700;
+            font-size: 13px; cursor: pointer; background: transparent; color: #ef4444; transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-pro-danger:hover { background: rgba(239,68,68,0.08); }
+        .btn-pro-danger.full { width: 100%; }
+
+        .btn-pro-danger-fill {
+            padding: 10px 20px; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;
+            background: #ef4444; color: white; transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .btn-pro-danger-fill:hover { background: #dc2626; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
+
+        /* ── API Keys ── */
+        .pro-keys-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+        .pro-key-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 12px 14px;
+            background: rgba(0,0,0,0.02); border-radius: 10px; border: 1px solid rgba(0,0,0,0.04);
+        }
+        .pro-key-name { font-weight: 700; font-size: 13px; color: #334155; }
+        .pro-key-hash { font-size: 11px; color: #94a3b8; font-family: monospace; }
+        .pro-key-revoke { padding: 4px 10px; font-size: 11px; font-weight: 700; color: #ef4444; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.15); border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .pro-key-revoke:hover { background: #ef4444; color: white; }
+
+        /* ── Credit Card ── */
+        .credit-card-display {
+            padding: 24px; border-radius: 16px; color: white; position: relative; overflow: hidden;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .cc-brand { font-size: 11px; opacity: 0.7; font-weight: 700; letter-spacing: 1px; margin-bottom: 16px; }
+        .cc-number { font-size: 18px; font-weight: 700; letter-spacing: 3px; margin-bottom: 20px; }
+        .cc-bottom { display: flex; justify-content: space-between; }
+        .cc-label { display: block; font-size: 10px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.5px; }
+        .cc-val { display: block; font-size: 13px; font-weight: 600; margin-top: 2px; }
+        .pro-empty-state { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 24px; color: #94a3b8; font-size: 13px; background: rgba(0,0,0,0.02); border-radius: 12px; }
+
+        /* ── AI Agents ── */
+        .ai-agent-list { display: flex; flex-direction: column; gap: 10px; }
+        .ai-agent-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: rgba(0,0,0,0.02); border-radius: 10px; }
+        .ai-agent-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .ai-agent-dot.green { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+        .ai-agent-name { font-size: 13px; font-weight: 700; color: #334155; }
+        .ai-agent-desc { font-size: 11px; color: #94a3b8; }
+        .ai-stats-mini { display: flex; gap: 8px; margin-top: 16px; }
+        .ai-stat-chip { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; background: rgba(139,92,246,0.08); border-radius: 8px; font-size: 12px; color: #7c3aed; font-weight: 600; }
+        .ai-stat-num { font-weight: 800; }
+
+        /* ── Geofences ── */
+        .geofence-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+        .geo-card {
+            padding: 16px; border-radius: 12px; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.04);
+        }
+        .geo-card-title { font-weight: 700; color: #334155; font-size: 14px; margin-bottom: 8px; }
+        .geo-card-meta { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+
+        /* ── Preferences ── */
+        .pref-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+        .pref-item { display: flex; flex-direction: column; gap: 6px; }
+        .pref-hint { font-size: 11px; color: #94a3b8; margin: 0; }
+        .pref-select-label { font-weight: 600; font-size: 12px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .toggle-label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600; font-size: 13px; user-select: none; }
+        .toggle-label input { display: none; }
+        .toggle-track { width: 36px; height: 20px; background: #cbd5e1; border-radius: 10px; position: relative; transition: background 0.2s; flex-shrink: 0; }
+        .toggle-thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: white; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .toggle-label input:checked + .toggle-track { background: var(--primary, #0ea5e4); }
+        .toggle-label input:checked + .toggle-track .toggle-thumb { transform: translateX(16px); }
+
+        /* ── Danger Zone ── */
+        .danger-zone { border: 1.5px solid rgba(239,68,68,0.2); background: rgba(239,68,68,0.03); }
+        .danger-hint { font-size: 13px; color: #94a3b8; margin-bottom: 16px; }
+
+        /* ── Toast ── */
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+        .toast {
+            padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 600; color: white;
+            backdrop-filter: blur(12px); animation: toastIn 0.3s ease; min-width: 240px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        .toast.success { background: rgba(34,197,94,0.9); }
+        .toast.error { background: rgba(239,68,68,0.9); }
+        .toast.info { background: rgba(14,165,228,0.9); }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── Topbar (matches enterprise system) ── */
+        .topbar { position: fixed; top: 0; left: 0; right: 0; height: 64px; background: rgba(255,255,255,0.8); backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 1000; }
+        .topbar-brand { display: flex; align-items: center; gap: 10px; }
+        .topbar-logo { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary, #0ea5e4), #06b6d4); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 12px; }
+        .topbar-title { font-weight: 800; font-size: 16px; letter-spacing: -0.5px; }
+        .topbar-badge { font-size: 10px; padding: 2px 8px; background: rgba(14,165,228,0.1); color: var(--primary, #0ea5e4); border-radius: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .topbar-nav { display: flex; gap: 4px; }
+        .topbar-link { padding: 8px 14px; font-size: 13px; font-weight: 600; color: #64748b; text-decoration: none; border-radius: 8px; transition: all 0.2s; }
+        .topbar-link:hover { background: rgba(0,0,0,0.04); color: #334155; }
+        .topbar-link.active { background: rgba(14,165,228,0.1); color: var(--primary, #0ea5e4); }
+
+        @media (max-width: 768px) {
+            .profile-grid { grid-template-columns: 1fr; }
+            .profile-page { padding: 20px 16px; }
+            .profile-header { flex-direction: column; text-align: center; }
+            .profile-header-actions { margin-left: 0; }
+            .pro-card { padding: 20px; }
+            .plan-meter-grid { grid-template-columns: 1fr; }
+            .topbar-badge { display: none; }
+        }
+    </style>
+
+    <script nonce="{{ csp_nonce }}">
+        function showToast(msg, type = 'info') {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.textContent = msg;
+            c.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
+        }
+
+        async function parseApiResponse(res) {
+            const raw = await res.text();
+            let data = null;
+            try {
+                data = raw ? JSON.parse(raw) : {};
+            } catch (err) {
+                if (!res.ok) {
+                    if (res.status === 401) throw new Error('Tu sesión expiró. Vuelve a iniciar sesión.');
+                    if (res.status === 403) throw new Error('La solicitud fue rechazada por seguridad.');
+                    if (res.status === 500) throw new Error('El servidor devolvió un error interno.');
+                }
+                throw new Error('La respuesta del servidor no llegó en formato JSON.');
+            }
+            if (!res.ok) {
+                throw new Error(data?.error || `Solicitud fallida (${res.status})`);
+            }
+            return data;
+        }
+
+        async function postAction(url, payload = null) {
+            const headers = {
+                'Accept': 'application/json',
+                'X-CSRF-Token': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            };
+            const options = { method: 'POST', headers };
+            if (payload !== null) {
+                headers['Content-Type'] = 'application/json';
+                options.body = JSON.stringify(payload);
+            }
+            const res = await fetch(url, options);
+            return parseApiResponse(res);
+        }
+
+        const profileActionState = { resolver: null };
+
+        function closeProfileActionModal(result = null) {
+            const modal = document.getElementById('profileActionModal');
+            if (modal) modal.style.display = 'none';
+            if (profileActionState.resolver) {
+                profileActionState.resolver(result);
+                profileActionState.resolver = null;
+            }
+        }
+
+        function openProfileActionModal(config = {}) {
+            const modal = document.getElementById('profileActionModal');
+            const title = document.getElementById('profileActionTitle');
+            const copy = document.getElementById('profileActionCopy');
+            const fields = document.getElementById('profileActionFields');
+            const confirmBtn = document.getElementById('profileActionConfirm');
+            const cancelBtn = document.getElementById('profileActionCancel');
+            title.textContent = config.title || 'Confirmar accion';
+            copy.textContent = config.message || '';
+            confirmBtn.textContent = config.confirmLabel || 'Continuar';
+            confirmBtn.style.background = config.danger ? 'linear-gradient(135deg,#ef4444,#dc2626)' : 'linear-gradient(135deg,#0ea5e4,#0284c7)';
+            fields.innerHTML = '';
+
+            const inputs = [];
+            (config.fields || []).forEach(field => {
+                const wrap = document.createElement('div');
+                wrap.style.display = 'grid';
+                wrap.style.gap = '6px';
+                const label = document.createElement('label');
+                label.textContent = field.label || '';
+                label.style.fontSize = '12px';
+                label.style.fontWeight = '700';
+                label.style.color = '#334155';
+                const input = document.createElement(field.multiline ? 'textarea' : 'input');
+                if (!field.multiline) input.type = field.type || 'text';
+                if (field.multiline) input.rows = field.rows || 4;
+                input.value = field.value || '';
+                input.placeholder = field.placeholder || '';
+                input.dataset.fieldId = field.id || '';
+                input.style.padding = '12px 14px';
+                input.style.border = '1.5px solid #e2e8f0';
+                input.style.borderRadius = '10px';
+                input.style.font = 'inherit';
+                input.style.outline = 'none';
+                wrap.appendChild(label);
+                wrap.appendChild(input);
+                fields.appendChild(wrap);
+                inputs.push({ meta: field, input });
+            });
+
+            modal.style.display = 'flex';
+            return new Promise(resolve => {
+                profileActionState.resolver = resolve;
+                confirmBtn.onclick = () => {
+                    const values = {};
+                    for (const item of inputs) {
+                        const value = item.input.value.trim();
+                        if (item.meta.required && !value) {
+                            item.input.focus();
+                            item.input.style.borderColor = '#ef4444';
+                            return;
+                        }
+                        values[item.meta.id] = value;
+                    }
+                    closeProfileActionModal(values);
+                };
+                cancelBtn.onclick = () => closeProfileActionModal(null);
+            });
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/user/profile');
+                const user = await res.json();
+                if (!res.ok) throw new Error(user.error);
+
+                document.getElementById('username').textContent = user.username;
+                document.getElementById('email').textContent = user.email;
+                document.getElementById('role').textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+                const createdDate = new Date(user.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+                document.getElementById('created').textContent = createdDate;
+
+                document.getElementById('header-username').textContent = user.username;
+                document.getElementById('header-role').textContent = user.role.toUpperCase();
+                document.getElementById('header-since').textContent = `Miembro desde ${createdDate}`;
+                document.getElementById('credibility-badge').textContent = user.reporter_profile?.credibility_label || 'Sin historial';
+
+                const planName = user.plan_name || 'Free';
+                currentPlanName = planName;
+                const planPrice = user.plan_price || 0;
+                const badge = document.getElementById('plan-badge');
+                badge.querySelector('.plan-hero-name').textContent = planName;
+                badge.querySelector('.plan-hero-price').textContent = `$${parseFloat(planPrice || 0).toFixed(2)}/mes`;
+
+                document.getElementById('geofence-usage').textContent = `${user.geofences_used} / ${user.geofences_limit}`;
+                document.getElementById('alerts-usage').textContent = `${user.alerts_today || 0} / ${user.max_alerts_per_day || 10}`;
+                document.getElementById('api-access').textContent = user.api_access ? 'Activo' : 'No disponible';
+                document.getElementById('assistant-plan-note').textContent = `Modo IA: ${user.assistant_mode_label || 'Asistente básico'}`;
+
+                document.getElementById('push-enabled').checked = !!user.notification_preferences?.push_enabled;
+                document.getElementById('email-enabled').checked = !!user.notification_preferences?.email_enabled;
+                document.getElementById('browser-notifications').checked = !!user.notification_preferences?.browser_notifications;
+                document.getElementById('min-alert-level').value = user.notification_preferences?.min_alert_level || 'medium';
+                renderIncidentTypePreferences(user.notification_categories || [], user.notification_preferences?.incident_types || []);
+
+                loadAPIKeys();
+                loadGeofences();
+                loadPaymentMethod();
+                loadMyStats();
+            } catch (e) {
+                console.error('Error cargando perfil:', e);
+            }
+        }
+
+        function renderIncidentTypePreferences(categories, selected) {
+            const holder = document.getElementById('incident-type-prefs');
+            if (!holder) return;
+            holder.innerHTML = (categories || []).map(name => `
+                <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid rgba(15,23,42,0.08);border-radius:999px;background:#fff;font-size:12px;font-weight:600;color:#334155;">
+                    <input type="checkbox" class="incident-type-pref" value="${name}" ${selected.includes(name) ? 'checked' : ''}>
+                    <span>${name}</span>
+                </label>
+            `).join('');
+        }
+
+        async function saveNotificationPreferences() {
+            const browserToggle = document.getElementById('browser-notifications');
+            if (browserToggle.checked && 'Notification' in window && Notification.permission === 'default') {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    browserToggle.checked = false;
+                    showToast('El navegador no concedio permiso para las alertas visuales', 'warning');
+                }
+            }
+
+            const incidentTypes = Array.from(document.querySelectorAll('.incident-type-pref:checked')).map(el => el.value);
+            const data = await postAction('/api/user/preferences', {
+                push_enabled: document.getElementById('push-enabled').checked,
+                email_enabled: document.getElementById('email-enabled').checked,
+                browser_notifications: browserToggle.checked,
+                min_alert_level: document.getElementById('min-alert-level').value,
+                incident_types: incidentTypes
+            });
+            return data.preferences;
+        }
+
+        async function loadMyStats() {
+            try {
+                const res = await fetch('/api/incidents');
+                const incidents = await res.json();
+                if (Array.isArray(incidents)) {
+                    document.getElementById('my-incidents').textContent = incidents.length;
+                    document.getElementById('my-verified').textContent = incidents.filter(i => i.status === 'verified').length;
+
+                    // Update AI agent status based on real data
+                    const aiAnalyzed = incidents.filter(i => i.ai_analysis).length;
+                    const aiApproved = incidents.filter(i => i.ai_analysis && i.ai_analysis.decision === 'approved').length;
+                    const aiReview = incidents.filter(i => i.ai_analysis && i.ai_analysis.decision === 'review').length;
+                    const aiRejected = incidents.filter(i => i.ai_analysis && i.ai_analysis.decision === 'rejected').length;
+
+                    const agentList = document.querySelector('.ai-agent-list');
+                    if (agentList) {
+                        agentList.innerHTML = `
+                            <div class="ai-agent-row">
+                                <div class="ai-agent-dot green"></div>
+                                <div style="flex:1;">
+                                    <div class="ai-agent-name">Smart Moderator</div>
+                                    <div class="ai-agent-desc">Moderacion automatica de contenido</div>
+                                </div>
+                                <span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(34,197,94,0.1);color:#16a34a;">${aiAnalyzed} analizados</span>
+                            </div>
+                            <div class="ai-agent-row">
+                                <div class="ai-agent-dot green"></div>
+                                <div style="flex:1;">
+                                    <div class="ai-agent-name">Fake Ping Detector</div>
+                                    <div class="ai-agent-desc">Detecta reportes fraudulentos</div>
+                                </div>
+                                <span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(239,68,68,0.1);color:#ef4444;">${aiRejected} rechazados</span>
+                            </div>
+                            <div class="ai-agent-row">
+                                <div class="ai-agent-dot green"></div>
+                                <div style="flex:1;">
+                                    <div class="ai-agent-name">Zone Analyst</div>
+                                    <div class="ai-agent-desc">Analisis predictivo de zonas</div>
+                                </div>
+                                <span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(14,165,228,0.1);color:#0ea5e4;">${aiApproved} aprobados</span>
+                            </div>
+                        `;
+                    }
+
+                    const statsEl = document.getElementById('ai-stats-mini');
+                    if (statsEl) {
+                        statsEl.innerHTML = `
+                            <div class="ai-stat-chip"><span class="ai-stat-num">${incidents.length}</span> Reportes</div>
+                            <div class="ai-stat-chip"><span class="ai-stat-num">${incidents.filter(i=>i.status==='verified').length}</span> Verificados</div>
+                            <div class="ai-stat-chip" style="background:rgba(34,197,94,0.08);color:#16a34a;"><span class="ai-stat-num">${aiAnalyzed}</span> IA Analizados</div>
+                        `;
+                    }
+                }
+            } catch (e) { /* ignore */ }
+        }
+
+        function luhnCheck(num) {
+            const digits = num.replace(/\D/g, '');
+            if (digits.length < 13 || digits.length > 19) return false;
+            let sum = 0;
+            for (let i = digits.length - 1, alt = false; i >= 0; i--, alt = !alt) {
+                let n = parseInt(digits[i], 10);
+                if (alt) { n *= 2; if (n > 9) n -= 9; }
+                sum += n;
+            }
+            return sum % 10 === 0;
+        }
+
+        function detectBrand(num) {
+            const n = num.replace(/\D/g, '');
+            if (n.startsWith('4')) return 'Visa';
+            if (/^5[1-5]/.test(n)) return 'Mastercard';
+            if (/^3[47]/.test(n)) return 'Amex';
+            if (/^6011|^65|^64[4-9]/.test(n)) return 'Discover';
+            return '';
+        }
+
+        function formatCardNumber(val) {
+            const digits = val.replace(/\D/g, '').slice(0, 16);
+            return digits.replace(/(.{4})/g, '$1 ').trim();
+        }
+
+        async function loadPaymentMethod() {
+            try {
+                const res = await fetch('/api/user/payment-method');
+                const pm = await res.json();
+                if (!pm.has_card) {
+                    document.getElementById('payment-empty').style.display = 'flex';
+                    document.getElementById('payment-card').style.display = 'none';
+                    document.getElementById('btn-add-card').style.display = 'block';
+                    document.getElementById('btn-remove-card').style.display = 'none';
+                    return;
+                }
+                document.getElementById('payment-empty').style.display = 'none';
+                document.getElementById('payment-card').style.display = 'block';
+                document.getElementById('card-brand-label').textContent = (pm.card_brand || 'CARD').toUpperCase();
+                document.getElementById('card-number-masked').textContent = `**** **** **** ${pm.card_last4}`;
+                document.getElementById('card-name-display').textContent = pm.card_name;
+                document.getElementById('card-expiry-display').textContent = pm.card_expiry;
+                document.getElementById('btn-add-card').style.display = 'none';
+                document.getElementById('btn-remove-card').style.display = 'block';
+            } catch (e) { console.error('Error cargando pago:', e); }
+        }
+
+        async function loadAPIKeys() {
+            try {
+                const res = await fetch('/api/user/api-keys');
+                const keys = await res.json();
+                const list = document.getElementById('api-keys-list');
+                list.innerHTML = keys.map(k => `
+                    <div class="pro-key-item">
+                        <div>
+                            <div class="pro-key-name">${k.name}</div>
+                            <div class="pro-key-hash">${k.key_hash.slice(-8)}</div>
+                        </div>
+                        <button class="pro-key-revoke" data-action="delete-key" data-id="${k.id}">Revocar</button>
+                    </div>
+                `).join('');
+            } catch (e) { console.error('Error cargando API keys:', e); }
+        }
+
+        async function loadGeofences() {
+            try {
+                const res = await fetch('/api/alert-subscriptions');
+                const fences = await res.json();
+                const list = document.getElementById('geofences-list');
+                list.innerHTML = fences.map(f => `
+                    <div class="geo-card">
+                        <div class="geo-card-title">Zona ${f.id}</div>
+                        <div class="geo-card-meta">${f.center_lat.toFixed(4)}, ${f.center_lng.toFixed(4)}</div>
+                        <div class="geo-card-meta">Radio: ${f.radius_km} km</div>
+                        <button class="btn-pro-danger full" style="margin-top:10px;padding:6px;font-size:11px;" data-action="delete-geofence" data-id="${f.id}">Eliminar</button>
+                    </div>
+                `).join('');
+            } catch (e) { console.error('Error cargando geofences:', e); }
+        }
+
+        document.getElementById('card-number').addEventListener('input', function() {
+            this.value = formatCardNumber(this.value);
+            const raw = this.value.replace(/\D/g, '');
+            const brandEl = document.getElementById('card-brand-icon');
+            const luhnEl = document.getElementById('card-luhn-status');
+            brandEl.textContent = detectBrand(raw) || '';
+            if (raw.length >= 13) {
+                luhnEl.textContent = luhnCheck(raw) ? 'Valida' : 'Invalida';
+                luhnEl.style.color = luhnCheck(raw) ? '#22c55e' : '#ef4444';
+            } else { luhnEl.textContent = ''; }
+        });
+
+        document.getElementById('card-expiry').addEventListener('input', function() {
+            let v = this.value.replace(/\D/g, '').slice(0, 4);
+            if (v.length >= 3) v = v.slice(0, 2) + '/' + v.slice(2);
+            this.value = v;
+        });
+
+        document.getElementById('card-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const number = document.getElementById('card-number').value.replace(/\D/g, '');
+            const name = document.getElementById('card-name').value.trim();
+            const expiry = document.getElementById('card-expiry').value.trim();
+            const cvv = document.getElementById('card-cvv').value.trim();
+
+            if (!luhnCheck(number)) { showToast('Numero de tarjeta invalido', 'error'); return; }
+            if (!name || name.length < 3) { showToast('Nombre del titular requerido', 'error'); return; }
+            if (!/^\d{2}\/\d{2}$/.test(expiry)) { showToast('Formato: MM/YY', 'error'); return; }
+            if (!/^\d{3,4}$/.test(cvv)) { showToast('CVV: 3 o 4 digitos', 'error'); return; }
+
+            try {
+                const res = await fetch('/api/user/payment-method', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '{{ csrf_token }}' },
+                    body: JSON.stringify({ card_number: number, card_name: name, card_expiry: expiry, card_cvv: cvv })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error guardando tarjeta');
+                showToast('Tarjeta registrada correctamente', 'success');
+                this.style.display = 'none';
+                this.reset();
+                loadPaymentMethod();
+            } catch (err) { showToast('Error: ' + err.message, 'error'); }
+        });
+
+        document.addEventListener('click', async function(e) {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.dataset.action;
+
+            if (action === 'logout') {
+                const form = document.createElement('form');
+                form.method = 'POST'; form.action = '/auth/logout';
+                const csrf = document.createElement('input');
+                csrf.name = 'csrf_token'; csrf.value = '{{ csrf_token }}';
+                form.appendChild(csrf); document.body.appendChild(form); form.submit();
+            }
+            if (action === 'show-card-form') { document.getElementById('card-form').style.display = 'flex'; btn.style.display = 'none'; }
+            if (action === 'cancel-card-form') {
+                document.getElementById('card-form').style.display = 'none';
+                document.getElementById('card-form').reset();
+                document.getElementById('btn-add-card').style.display = 'block';
+            }
+            if (action === 'remove-card') {
+                const confirmed = await openProfileActionModal({
+                    title: 'Eliminar metodo de pago',
+                    message: 'Quitaremos la tarjeta guardada de tu perfil. Podras volver a agregar una cuando quieras.',
+                    confirmLabel: 'Eliminar tarjeta',
+                    danger: true
+                });
+                if (!confirmed) return;
+                try {
+                    await fetch('/api/user/payment-method', { method: 'DELETE', headers: { 'X-CSRF-Token': '{{ csrf_token }}' } });
+                    showToast('Tarjeta eliminada', 'success');
+                    loadPaymentMethod();
+                } catch (err) { showToast('Error: ' + err.message, 'error'); }
+            }
+            if (action === 'upgrade-plan' || action === 'manage-subscription') {
+                openPlanModal();
+            }
+            if (action === 'select-plan') {
+                const planId = parseInt(btn.dataset.planId);
+                if (!planId) return;
+                try {
+                    const res = await fetch('/api/plans/upgrade', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '{{ csrf_token }}' },
+                        body: JSON.stringify({ plan_id: planId })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error);
+                    closePlanModal();
+                    showToast('Plan actualizado a ' + (data.plan || 'nuevo plan'), 'success');
+                    loadProfile();
+                } catch (err) { showToast('Error: ' + err.message, 'error'); }
+            }
+            if (action === 'save-preferences') {
+                try {
+                    await saveNotificationPreferences();
+                    showToast('Preferencias guardadas', 'success');
+                } catch (err) {
+                    showToast('Error: ' + err.message, 'error');
+                }
+            }
+            if (action === 'test-email') {
+                try {
+                    const data = await postAction('/api/user/preferences/test-email');
+                    showToast(data.message || 'Correo de prueba enviado', 'success');
+                } catch (err) {
+                    showToast('Error: ' + err.message, 'error');
+                }
+            }
+            if (action === 'send-summary-email') {
+                try {
+                    const data = await postAction('/api/user/preferences/send-summary');
+                    showToast(data.message || 'Resumen enviado', 'success');
+                } catch (err) {
+                    showToast('Error: ' + err.message, 'error');
+                }
+            }
+            if (action === 'delete-account') {
+                const confirmed = await openProfileActionModal({
+                    title: 'Eliminar cuenta',
+                    message: 'Esta accion eliminaria tu cuenta y todos tus datos. Escribe ELIMINAR para confirmar.',
+                    confirmLabel: 'Solicitar eliminacion',
+                    danger: true,
+                    fields: [{ id: 'confirm_text', label: 'Confirmacion', placeholder: 'Escribe ELIMINAR', required: true }]
+                });
+                if (!confirmed || confirmed.confirm_text !== 'ELIMINAR') {
+                    if (confirmed) showToast('Debes escribir ELIMINAR para confirmar', 'warning');
+                    return;
+                }
+                showToast('Funcionalidad proximamente', 'info');
+            }
+            if (action === 'delete-key') {
+                const confirmed = await openProfileActionModal({
+                    title: 'Revocar clave API',
+                    message: 'La clave dejara de funcionar inmediatamente para cualquier integracion activa.',
+                    confirmLabel: 'Revocar clave',
+                    danger: true
+                });
+                if (!confirmed) return;
+                const res = await fetch(`/api/user/api-keys/${btn.dataset.id}`, { method: 'DELETE', headers: { 'X-CSRF-Token': '{{ csrf_token }}' } });
+                const data = await res.json();
+                if (!res.ok) { showToast(data.error || 'No se pudo revocar la clave', 'error'); return; }
+                showToast('Clave revocada', 'success');
+                loadAPIKeys();
+            }
+            if (action === 'delete-geofence') {
+                const confirmed = await openProfileActionModal({
+                    title: 'Eliminar zona de alerta',
+                    message: 'Dejaras de recibir notificaciones para esta zona.',
+                    confirmLabel: 'Eliminar zona',
+                    danger: true
+                });
+                if (!confirmed) return;
+                const res = await fetch(`/api/alert-subscriptions/${btn.dataset.id}`, { method: 'DELETE', headers: { 'X-CSRF-Token': '{{ csrf_token }}' } });
+                const data = await res.json();
+                if (!res.ok) { showToast(data.error || 'No se pudo eliminar la zona', 'error'); return; }
+                showToast('Zona eliminada', 'success');
+                loadGeofences();
+            }
+            if (action === 'create-api-key') {
+                const res = await fetch('/api/user/api-keys', { method: 'POST', headers: { 'X-CSRF-Token': '{{ csrf_token }}' } });
+                const data = await res.json();
+                if (!res.ok) { showToast(data.error || 'No se pudo crear la clave', 'error'); return; }
+                await openProfileActionModal({
+                    title: 'Nueva clave API generada',
+                    message: 'Copia esta clave ahora. Por seguridad, esta es la unica vez que se mostrara completa.',
+                    confirmLabel: 'Listo',
+                    fields: [{ id: 'api_key', label: 'Clave API', value: data.key, multiline: true, rows: 3 }]
+                });
+                loadAPIKeys();
+                return;
+            }
+            if (action === 'add-geofence') {
+                const createZone = async (lat, lng) => {
+                    const input = await openProfileActionModal({
+                        title: 'Crear zona de alerta',
+                        message: `Usaremos tu ubicacion actual (${lat.toFixed(4)}, ${lng.toFixed(4)}) como centro de la zona.`,
+                        confirmLabel: 'Crear zona',
+                        fields: [{ id: 'radius_km', label: 'Radio en kilometros', value: '5', required: true }]
+                    });
+                    if (!input) return;
+                    const radius = parseFloat(input.radius_km);
+                    if (!radius || radius <= 0 || radius > 100) { showToast('Radio invalido', 'error'); return; }
+                    const res = await fetch('/api/alert-subscriptions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '{{ csrf_token }}' },
+                        body: JSON.stringify({ center_lat: lat, center_lng: lng, radius_km: radius, min_severity: 1 })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) { showToast(data.error || 'No se pudo crear la zona', 'error'); return; }
+                    showToast('Zona creada correctamente', 'success');
+                    loadProfile();
+                };
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => createZone(pos.coords.latitude, pos.coords.longitude),
+                        () => showToast('No pude obtener tu ubicacion actual', 'error'),
+                        { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
+                    );
+                } else {
+                    showToast('Tu navegador no soporta geolocalizacion', 'error');
+                }
+                return;
+            }
+            if (action === 'create-api-key') {
+                const res = await fetch('/api/user/api-keys', { method: 'POST', headers: { 'X-CSRF-Token': '{{ csrf_token }}' } });
+                const data = await res.json();
+                if (!res.ok) { showToast(data.error || 'No se pudo crear la clave', 'error'); return; }
+                await openProfileActionModal({
+                    title: 'Nueva clave API generada',
+                    message: 'Esta clave se muestra dentro del modal seguro del perfil.',
+                    confirmLabel: 'Listo',
+                    fields: [{ id: 'api_key', label: 'Clave API', value: data.key, multiline: true, rows: 3 }]
+                });
+                loadAPIKeys();
+            }
+            if (action === 'add-geofence') {
+                const createZone = async (lat, lng) => {
+                    const rawRadius = '5';
+                    if (rawRadius === null) return;
+                    const radius = parseFloat(rawRadius);
+                    if (!radius || radius <= 0 || radius > 100) { showToast('Radio inválido', 'error'); return; }
+                    const res = await fetch('/api/alert-subscriptions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '{{ csrf_token }}' },
+                        body: JSON.stringify({ center_lat: lat, center_lng: lng, radius_km: radius, min_severity: 1 })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) { showToast(data.error || 'No se pudo crear la zona', 'error'); return; }
+                    showToast('Zona creada correctamente', 'success');
+                    loadProfile();
+                };
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => createZone(pos.coords.latitude, pos.coords.longitude),
+                        () => showToast('No pude obtener tu ubicación actual', 'error'),
+                        { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
+                    );
+                } else {
+                    showToast('Tu navegador no soporta geolocalización', 'error');
+                }
+            }
+        });
+
+        document.getElementById('password-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const pwd = document.getElementById('new-password').value;
+            const confirmPwd = document.getElementById('confirm-password').value;
+            if (pwd !== confirmPwd) { showToast('Las contraseñas no coinciden', 'error'); return; }
+            try {
+                const res = await fetch('/api/user/change-password', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '{{ csrf_token }}' },
+                    body: JSON.stringify({ password: pwd })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                showToast('Contraseña actualizada', 'success');
+                this.reset();
+            } catch (e) { showToast('Error: ' + e.message, 'error'); }
+        });
+
+        function closePlanModal() {
+            document.getElementById('planModal').style.display = 'none';
+        }
+        document.getElementById('profileActionClose').onclick = () => closeProfileActionModal(null);
+        document.getElementById('profileActionCancel').onclick = () => closeProfileActionModal(null);
+        document.getElementById('profileActionModal').addEventListener('click', function(e) {
+            if (e.target === this) closeProfileActionModal(null);
+        });
+        document.getElementById('planModalClose').onclick = closePlanModal;
+        document.getElementById('planModalCancel').onclick = closePlanModal;
+        document.getElementById('planModal').addEventListener('click', function(e) {
+            if (e.target === this) closePlanModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('planModal').style.display === 'flex') closePlanModal();
+            if (e.key === 'Escape' && document.getElementById('profileActionModal').style.display === 'flex') closeProfileActionModal(null);
+        });
+
+        let currentPlanName = 'Free';
+
+        async function openPlanModal() {
+            const modal = document.getElementById('planModal');
+            const grid = document.getElementById('plansGrid');
+            modal.style.display = 'flex';
+            try {
+                const res = await fetch('/api/plans');
+                const plans = await res.json();
+                const PLAN_FEATURES = {
+                    'Free': [
+                        { t: '10 reportes por dia', ok: true, cat: 'uso' },
+                        { t: '1 zona de alerta', ok: true, cat: 'uso' },
+                        { t: 'Mapa en tiempo real', ok: true, cat: 'uso' },
+                        { t: 'Validacion IA basica (automatica)', ok: true, cat: 'ia' },
+                        { t: 'Detector de fraude basico', ok: true, cat: 'ia' },
+                        { t: 'Acceso API', ok: false, cat: 'api' },
+                        { t: 'Analisis IA avanzado de zona', ok: false, cat: 'ia' },
+                        { t: 'Asistente IA basico', ok: true, cat: 'ia' },
+                        { t: 'Historial y analitica', ok: false, cat: 'uso' },
+                        { t: 'Soporte prioritario', ok: false, cat: 'soporte' }
+                    ],
+                    'Pro': [
+                        { t: '100 reportes por dia', ok: true, cat: 'uso' },
+                        { t: '5 zonas de alerta', ok: true, cat: 'uso' },
+                        { t: 'Mapa en tiempo real', ok: true, cat: 'uso' },
+                        { t: 'Validacion IA avanzada (auto + detalle)', ok: true, cat: 'ia' },
+                        { t: 'Detector de fraude con IA profunda', ok: true, cat: 'ia' },
+                        { t: 'Analisis IA de zona + predicciones', ok: true, cat: 'ia' },
+                        { t: 'Asistente IA avanzado', ok: true, cat: 'ia' },
+                        { t: 'Acceso API completo', ok: true, cat: 'api' },
+                        { t: 'Historial 90 dias + exportacion', ok: true, cat: 'uso' },
+                        { t: 'Soporte prioritario', ok: false, cat: 'soporte' }
+                    ],
+                    'Enterprise': [
+                        { t: 'Reportes ilimitados', ok: true, cat: 'uso' },
+                        { t: 'Zonas de alerta ilimitadas', ok: true, cat: 'uso' },
+                        { t: 'Mapa en tiempo real', ok: true, cat: 'uso' },
+                        { t: 'IA dedicada + moderacion automatica', ok: true, cat: 'ia' },
+                        { t: 'Detector de fraude IA + aprendizaje', ok: true, cat: 'ia' },
+                        { t: 'Analisis avanzado + alertas en tiempo real', ok: true, cat: 'ia' },
+                        { t: 'Asistente IA con contexto completo', ok: true, cat: 'ia' },
+                        { t: 'API con webhooks', ok: true, cat: 'api' },
+                        { t: 'Historial completo + exportacion avanzada', ok: true, cat: 'uso' },
+                        { t: 'Soporte 24/7 dedicado', ok: true, cat: 'soporte' }
+                    ]
+                };
+                const COLORS = { 'Free': '#64748b', 'Pro': '#0ea5e4', 'Enterprise': '#8b5cf6' };
+                const BADGES = { 'Pro': 'Mas Popular', 'Enterprise': 'Maximo Poder' };
+                const catIcons = { ia: '\u{1F916}', uso: '\u{1F4CA}', api: '\u{1F517}', soporte: '\u{1F6E1}' };
+
+                grid.innerHTML = plans.map(p => {
+                    const feats = PLAN_FEATURES[p.name] || [];
+                    const c = COLORS[p.name] || '#0ea5e4';
+                    const badge = BADGES[p.name] || '';
+                    const pop = p.name === 'Pro';
+                    const isCurrent = p.name === currentPlanName;
+                    return `<div style="padding:24px;border-radius:16px;border:${isCurrent?'2px solid '+c:(pop?'2px':'1.5px')+' solid '+(pop?c:'rgba(0,0,0,0.08)')};position:relative;${pop&&!isCurrent?'box-shadow:0 8px 32px rgba(14,165,228,0.15);transform:scale(1.02);':''}${isCurrent?'background:'+c+'08;':''}">
+                        ${isCurrent?`<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);padding:4px 14px;background:#10b981;color:#fff;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:0.5px;white-space:nowrap;">Tu plan actual</div>`
+                        :badge?`<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);padding:4px 14px;background:${c};color:#fff;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:0.5px;white-space:nowrap;">${badge}</div>`:''}
+                        <div style="text-align:center;margin-bottom:16px;padding-top:${badge||isCurrent?'8':'0'}px;">
+                            <div style="font-size:18px;font-weight:800;color:${c};">${p.name}</div>
+                            <div style="font-size:32px;font-weight:800;color:#0f172a;">$${parseFloat(p.price_monthly_usd).toFixed(2)}<span style="font-size:14px;color:#94a3b8;font-weight:500;">/mes</span></div>
+                            <div style="font-size:11px;color:#94a3b8;margin-top:2px;">${p.max_alerts_per_day} reportes/dia | ${p.max_geo_fences} zonas</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px;">
+                            ${feats.map(f=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:${f.ok?'#334155':'#cbd5e1'};">
+                                <span style="font-size:12px;width:16px;text-align:center;">${f.ok?(catIcons[f.cat]||'\u2713'):'\u2014'}</span>
+                                <span style="font-weight:${f.ok?'600':'400'};${f.cat==='ia'&&f.ok?'color:#7c3aed;':''}">${f.t}</span>
+                            </div>`).join('')}
+                        </div>
+                        ${isCurrent
+                            ?`<div style="width:100%;padding:12px;border:1.5px solid #10b981;border-radius:10px;font-weight:700;font-size:13px;text-align:center;color:#10b981;font-family:Inter,sans-serif;">Plan activo</div>`
+                            :`<button data-action="select-plan" data-plan-id="${p.id}" style="width:100%;padding:12px;border:${pop?'none':'1.5px solid '+c};border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;background:${pop?'linear-gradient(135deg,'+c+',#0284c7)':'transparent'};color:${pop?'#fff':c};transition:all 0.2s;font-family:Inter,sans-serif;">${parseFloat(p.price_monthly_usd) > 0 ? 'Mejorar a '+p.name : 'Cambiar a '+p.name}</button>`}
+                    </div>`;
+                }).join('');
+            } catch (e) { grid.innerHTML = '<div style="padding:20px;color:#ef4444;">Error cargando planes</div>'; }
+        }
+
+        loadProfile();
+    </script>
+</body>
+</html>

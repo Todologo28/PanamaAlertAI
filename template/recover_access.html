@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Acceso - PanamaAlert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style nonce="{{ csp_nonce }}">
+        body.auth {
+            background:
+                radial-gradient(ellipse at top left, rgba(14,165,233,0.16) 0%, transparent 45%),
+                radial-gradient(ellipse at bottom right, rgba(6,182,212,0.12) 0%, transparent 40%),
+                linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .auth-card {
+            max-width: 560px;
+            animation: fadeUp 0.5s ease;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .recovery-note {
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: rgba(14,165,233,0.12);
+            border: 1px solid rgba(14,165,233,0.2);
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+        .field-hint {
+            margin-top: 6px;
+            font-size: 11px;
+            color: var(--muted);
+        }
+        .recovery-footer {
+            margin-top: 18px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .recovery-footer a {
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .recovery-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="auth">
+    <div class="auth-shell">
+        <div class="auth-card">
+            <div class="brand">
+                <img src="{{ url_for('static', filename='logo-compact.svg') }}" alt="PA" width="44" height="44" style="border-radius:14px;">
+                <div>
+                    <h1>PanamaAlert</h1>
+                    <p>Recuperación de acceso</p>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <h2 class="auth-title">Recupera tu cuenta</h2>
+            <p class="auth-subtitle">Confirma tu identidad con tu token 2FA y define una nueva contraseña.</p>
+
+            <div class="recovery-note">
+                Este flujo no depende de correos salientes. Necesitas tu usuario o correo y acceso a tu aplicación de autenticación.
+            </div>
+
+            <form method="POST" id="recover-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Usuario o Correo</label>
+                        <input type="text" name="identifier" id="identifier" placeholder="tu_usuario o tu@email.com" required>
+                        <span class="error-message"></span>
+                    </div>
+
+                    <div class="field">
+                        <label>Token 2FA</label>
+                        <input type="text" name="token" id="token" inputmode="numeric" pattern="[0-9]{6}" placeholder="123456" required>
+                        <div class="field-hint">Código de 6 dígitos de Google Authenticator, Authy u otra app TOTP.</div>
+                        <span class="error-message"></span>
+                    </div>
+
+                    <div class="field">
+                        <label>Nueva Contraseña</label>
+                        <input type="password" name="password" id="password" placeholder="Nueva contraseña segura" required>
+                        <span class="error-message"></span>
+                    </div>
+
+                    <div class="field">
+                        <label>Confirmar Contraseña</label>
+                        <input type="password" name="confirm_password" id="confirm_password" placeholder="Repite la contraseña" required>
+                        <span class="error-message"></span>
+                    </div>
+                </div>
+
+                <div class="auth-actions">
+                    <button type="submit" class="btn-primary" id="recover-submit">Actualizar acceso</button>
+                </div>
+            </form>
+
+            <div class="recovery-footer">
+                <a href="{{ url_for('auth.login') }}">Volver al inicio de sesión</a>
+            </div>
+        </div>
+    </div>
+
+    <script nonce="{{ csp_nonce }}">
+        const recoverForm = document.getElementById('recover-form');
+        recoverForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.textContent = '';
+                el.classList.remove('show');
+            });
+            document.querySelectorAll('.field input').forEach(el => el.classList.remove('error'));
+
+            const identifier = document.getElementById('identifier').value.trim();
+            const token = document.getElementById('token').value.trim();
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm_password').value;
+            let hasError = false;
+
+            function showFieldError(id, message) {
+                const input = document.getElementById(id);
+                const error = input.parentElement.querySelector('.error-message');
+                input.classList.add('error');
+                error.textContent = message;
+                error.classList.add('show');
+                hasError = true;
+            }
+
+            if (!identifier) showFieldError('identifier', 'Ingresa tu usuario o correo');
+            if (!/^\d{6}$/.test(token)) showFieldError('token', 'El token debe tener 6 dígitos');
+            if (password.length < 8) showFieldError('password', 'Usa mínimo 8 caracteres');
+            if (password !== confirm) showFieldError('confirm_password', 'Las contraseñas no coinciden');
+
+            if (hasError) return;
+
+            const btn = document.getElementById('recover-submit');
+            btn.disabled = true;
+            btn.textContent = 'Actualizando...';
+            this.submit();
+        });
+    </script>
+</body>
+</html>

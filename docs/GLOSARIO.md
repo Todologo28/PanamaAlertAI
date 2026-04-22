@@ -1,0 +1,22 @@
+# Glosario de Terminos
+
+- `3FN`: tercera forma normal; evita dependencias transitivas innecesarias.
+- `ORM`: mapeo objeto-relacional entre clases Python y tablas SQL.
+- `CRUD`: crear, leer, actualizar y eliminar registros.
+- `API REST`: interfaz HTTP basada en recursos, verbos y respuestas estandar.
+- `Stored Procedure`: logica SQL encapsulada y ejecutable desde MariaDB.
+- `Vista`: consulta persistida reutilizable para reportes o BI.
+- `ETL`: extraccion, transformacion y carga de datos.
+- `Staging`: area temporal donde llegan datos antes de transformarse.
+- `Power BI`: herramienta de visualizacion y analitica.
+- `JMeter`: herramienta para pruebas de carga y rendimiento.
+- `Postman`: herramienta para pruebas funcionales de API.
+- `JWT`: token firmado para autenticacion stateless.
+- `TOTP`: token temporal usado como segundo factor.
+- `CSRF`: ataque que fuerza acciones autenticadas desde otro sitio.
+- `CSP`: politica de seguridad de contenido del navegador.
+- `Geo-fence`: zona geografica usada para alertas por proximidad.
+- `Haversine`: formula para calcular distancia aproximada entre coordenadas.
+- `Cluster de marcadores`: agrupacion visual de pines en el mapa.
+- `Rate limiting`: limite de solicitudes en una ventana de tiempo.
+- `Audit log`: bitacora de eventos relevantes para trazabilidad.

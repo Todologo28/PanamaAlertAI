@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - PanamaAlert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style nonce="{{ csp_nonce }}">
+        body.auth {
+            background: radial-gradient(ellipse at 20% 50%, rgba(14, 165, 228, 0.15) 0%, transparent 50%),
+                        linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .auth-shell {
+            perspective: 1000px;
+        }
+
+        .auth-card {
+            animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            gap: 12px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .form-divider::before,
+        .form-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            background: #f1f5f9;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background-color 0.3s;
+            background: var(--danger);
+        }
+
+        .password-strength-bar.weak {
+            width: 33%;
+            background: var(--danger);
+        }
+
+        .password-strength-bar.medium {
+            width: 66%;
+            background: var(--warning);
+        }
+
+        .password-strength-bar.strong {
+            width: 100%;
+            background: var(--success);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-group label {
+            cursor: pointer;
+            font-size: 14px;
+            user-select: none;
+        }
+
+        .checkbox-group a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .checkbox-group a:hover {
+            text-decoration: underline;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .signup-link a {
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            display: none;
+            color: var(--danger);
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .field input.error {
+            border-color: var(--danger);
+        }
+
+        .field input.error:focus {
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.25);
+        }
+    </style>
+</head>
+<body class="auth">
+    <div class="auth-shell">
+        <div class="auth-card">
+            <div class="brand">
+                <img src="{{ url_for('static', filename='logo-compact.svg') }}" alt="PA" width="44" height="44" style="border-radius:14px;">
+                <div>
+                    <h1>PanamaAlert</h1>
+                    <p>Plataforma de Inteligencia Ciudadana</p>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <h2 class="auth-title">Bienvenido</h2>
+            <p class="auth-subtitle">Inicia sesión en tu cuenta para continuar</p>
+
+            <div id="loginFeedback" class="feedback-panel warning">
+                <div class="feedback-title">Revisa tu acceso</div>
+                <div class="feedback-copy"></div>
+            </div>
+
+            <form method="POST" id="login-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Usuario o Correo</label>
+                        <input type="text" name="usuario" id="usuario" placeholder="tu_usuario o tu@email.com" required>
+                        <span class="error-message"></span>
+                    </div>
+
+                    <div class="field">
+                        <label>Contraseña</label>
+                        <input type="password" name="contrasena" id="contrasena" placeholder="••••••••" required>
+                        <span class="error-message"></span>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember" name="remember" checked>
+                    <label for="remember">Recuerda mi sesión</label>
+                </div>
+
+                <div class="auth-actions">
+                    <button type="submit" class="btn-primary">Iniciar Sesión</button>
+                </div>
+            </form>
+
+            <div class="form-divider">o continúa con</div>
+
+            <div class="signup-link">
+                ¿No tienes cuenta?
+                <a href="{{ url_for('auth.registro') }}">Regístrate aquí →</a>
+            </div>
+
+            <div class="auth-footer">
+                <a href="{{ url_for('auth.recover_access') }}">¿Olvidaste tu contraseña?</a>
+            </div>
+        </div>
+    </div>
+
+    <script nonce="{{ csp_nonce }}">
+        function setLoginFeedback(message = '', type = 'warning') {
+            const panel = document.getElementById('loginFeedback');
+            if (!panel) return;
+            panel.className = `feedback-panel ${type}`;
+            panel.querySelector('.feedback-copy').textContent = message;
+            panel.classList.toggle('show', !!message);
+        }
+
+        function showFieldError(id, message) {
+            const input = document.getElementById(id);
+            const error = input && input.parentElement ? input.parentElement.querySelector('.error-message') : null;
+            if (input) input.classList.add('error');
+            if (error) {
+                error.textContent = message;
+                error.classList.add('show');
+            }
+        }
+
+        function clearLoginErrors() {
+            document.querySelectorAll('#login-form .error-message').forEach(el => {
+                el.textContent = '';
+                el.classList.remove('show');
+            });
+            document.querySelectorAll('#login-form input').forEach(el => el.classList.remove('error'));
+            setLoginFeedback('');
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            clearLoginErrors();
+
+            const usuario = document.getElementById('usuario').value.trim();
+            const contrasena = document.getElementById('contrasena').value;
+
+            if (!usuario || !contrasena) {
+                if (!usuario) showFieldError('usuario', 'Ingresa tu usuario o correo');
+                if (!contrasena) showFieldError('contrasena', 'Ingresa tu contrasena');
+                setLoginFeedback('Completa los campos marcados para iniciar sesion.', 'warning');
+                return;
+            }
+
+            // Enviar con Flask session (no JavaScript)
+            setLoginFeedback('Validando tus credenciales y preparando tu sesion...', 'success');
+            this.submit();
+        });
+    </script>
+</body>
+</html>

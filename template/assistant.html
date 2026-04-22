@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <title>Asistente IA - PanamaAlert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style nonce="{{ csp_nonce }}">
+        body { background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%); }
+        .assistant-wrap { max-width: 1320px; margin: 0 auto; padding: 28px 20px 36px; }
+        .assistant-grid { display:grid; grid-template-columns: 360px 1fr; gap: 20px; }
+        .assistant-panel { background:#fff; border:1px solid var(--border); border-radius:20px; box-shadow: var(--shadow); }
+        .assistant-panel .head { padding:20px 22px; border-bottom:1px solid var(--border); }
+        .assistant-panel .body { padding:20px 22px; }
+        .assistant-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:18px; }
+        .assistant-kpi { padding:14px; border-radius:16px; background:linear-gradient(135deg,#eff6ff,#f8fafc); border:1px solid #dbeafe; }
+        .assistant-kpi .label { font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.4px; }
+        .assistant-kpi .value { margin-top:6px; font-size:26px; font-weight:800; color:#0f172a; }
+        .mode-badge { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; background:rgba(14,165,233,.12); color:#0369a1; font-size:12px; font-weight:800; }
+        .mini-card { padding:14px; border-radius:16px; background:#f8fafc; border:1px solid var(--border); margin-bottom:12px; }
+        .mini-card h3 { font-size:13px; margin-bottom:8px; }
+        .field { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+        .field label { font-size:12px; font-weight:700; color:#475569; }
+        .field input, .field select { border:1px solid #cbd5e1; border-radius:12px; padding:11px 12px; font:inherit; }
+        .field small { color:#64748b; font-size:12px; }
+        .field-inline { display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:end; }
+        .field-inline .btn-primary, .field-inline .btn-secondary { min-width:126px; }
+        .btn-row { display:flex; gap:10px; flex-wrap:wrap; }
+        .chip-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+        .prompt-chip { border:none; border-radius:999px; background:#e0f2fe; color:#075985; padding:10px 12px; font:600 12px Inter,sans-serif; cursor:pointer; }
+        .prompt-chip:hover { background:#bae6fd; }
+        .chat-shell { display:flex; flex-direction:column; min-height:720px; }
+        .chat-messages { flex:1; padding:20px 22px; overflow:auto; display:flex; flex-direction:column; gap:14px; background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%); }
+        .msg { max-width:78%; padding:14px 16px; border-radius:18px; box-shadow:0 8px 24px rgba(15,23,42,.05); line-height:1.5; }
+        .msg.user { align-self:flex-end; background:linear-gradient(135deg,#0ea5e9,#0284c7); color:#fff; border-bottom-right-radius:6px; }
+        .msg.bot { align-self:flex-start; background:#fff; border:1px solid #dbeafe; color:#0f172a; border-bottom-left-radius:6px; }
+        .msg-meta { margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
+        .pill { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:6px 10px; background:#f1f5f9; color:#334155; font-size:11px; font-weight:800; }
+        .pill.low { background:#dcfce7; color:#166534; }
+        .pill.medium { background:#fef3c7; color:#92400e; }
+        .pill.high, .pill.critical { background:#fee2e2; color:#991b1b; }
+        .actions-list { margin:10px 0 0 18px; }
+        .actions-list li { margin-bottom:5px; }
+        .incident-list { margin-top:10px; display:grid; gap:8px; }
+        .incident-item { padding:10px 12px; border-radius:12px; background:#f8fafc; border:1px solid #e2e8f0; font-size:12px; }
+        .chat-input { display:flex; gap:10px; padding:18px 22px; border-top:1px solid var(--border); background:#fff; }
+        .chat-input input { flex:1; border:1px solid #cbd5e1; border-radius:14px; padding:14px 16px; font:inherit; }
+        .inline-notice { margin-top:12px; padding:10px 12px; border-radius:12px; background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; font-size:12px; display:none; }
+        .zone-summary { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+        .summary-box { padding:12px; border-radius:14px; background:#fff; border:1px solid #dbeafe; }
+        .summary-box strong { display:block; font-size:26px; color:#0f172a; }
+        .summary-box span { font-size:12px; color:#64748b; }
+        .muted { color:#64748b; }
+        .place-chip { display:inline-flex; align-items:center; gap:8px; margin-top:10px; padding:10px 12px; border-radius:14px; background:#eff6ff; color:#0f172a; border:1px solid #bfdbfe; font-size:12px; font-weight:600; }
+        details.coords-panel { margin-top:12px; border:1px dashed #cbd5e1; border-radius:14px; padding:10px 12px; background:#fafcff; }
+        details.coords-panel summary { cursor:pointer; font-size:12px; font-weight:800; color:#475569; }
+        .coords-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:12px; }
+        .coords-grid input { background:#f8fafc; }
+        @media (max-width: 1024px) { .assistant-grid { grid-template-columns:1fr; } .chat-shell { min-height: 620px; } .field-inline { grid-template-columns:1fr; } .coords-grid { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-brand">
+            <img src="{{ url_for('static', filename='logo-compact.svg') }}" alt="PA" width="36" height="36" style="border-radius:8px;">
+            <div>
+                <h1>PanamaAlert</h1>
+                <p>Asistente de Inteligencia</p>
+            </div>
+        </div>
+        <div class="topbar-actions">
+            <a href="/app" class="topbar-link">Mapa</a>
+            <a href="/dashboard" class="topbar-link">Dashboard</a>
+            <a href="/profile" class="topbar-link">Perfil</a>
+            <a href="/assistant" class="topbar-link active">Asistente IA</a>
+            <form method="POST" action="{{ url_for('auth.logout') }}" style="margin:0">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button class="logout-btn" type="submit">Salir</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="assistant-wrap">
+        <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;">
+            <div>
+                <h1 class="page-title">Asistente IA aplicado a la app</h1>
+                <p class="page-subtitle">Consulta riesgos, patrones e incidentes cercanos con contexto real de la plataforma.</p>
+            </div>
+            <div class="mode-badge">🤖 {{ assistant_mode_label }} · Plan {{ plan_name }}</div>
+        </div>
+
+        <section class="trust-banner">
+            <div class="trust-banner-head">
+                <div>
+                    <div class="trust-banner-title">Asistencia mas clara, explicable y util</div>
+                    <p class="trust-banner-copy">Esta vista ahora deja mas claro que el asistente no solo conversa: toma el lugar consultado, calcula incidentes cercanos, evalua tendencia y convierte ese contexto en recomendaciones accionables.</p>
+                </div>
+                <span class="trust-badge">Plan {{ plan_name }} · {{ assistant_mode_label }}</span>
+            </div>
+            <div class="trust-grid">
+                <article class="trust-card">
+                    <h3>Lo que hace en tu plan</h3>
+                    <ul class="trust-list">
+                        {% for item in assistant_capabilities %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </article>
+                <article class="trust-card">
+                    <h3>Datos que usa de verdad</h3>
+                    <ul class="trust-list">
+                        {% for item in assistant_sources %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </article>
+                <article class="trust-card">
+                    <h3>Limites y validaciones</h3>
+                    <ul class="trust-list">
+                        {% for item in assistant_guardrails %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <div class="assistant-kpis">
+            <div class="assistant-kpi"><div class="label">Modo</div><div class="value" id="assistantMode">{{ assistant_mode_label }}</div></div>
+            <div class="assistant-kpi"><div class="label">Ubicación</div><div class="value" id="assistantLocation">--</div></div>
+            <div class="assistant-kpi"><div class="label">Estado</div><div class="value" id="assistantStatus">Listo</div></div>
+        </div>
+
+        <div class="assistant-grid" style="margin-top:20px;">
+            <aside class="assistant-panel">
+                <div class="head">
+                    <h2 class="card-title">Contexto de análisis</h2>
+                    <p class="card-subtitle">Controla la ubicación y genera un resumen de la zona antes de chatear.</p>
+                </div>
+                <div class="body">
+                    <div class="mini-card">
+                        <h3>Ubicación de trabajo</h3>
+                        <div class="field">
+                            <label>Lugar o dirección</label>
+                            <div class="field-inline">
+                                <input type="text" id="placeInput" placeholder="Ej.: Calle 50, Panamá o Albrook Mall">
+                                <button class="btn-secondary" id="searchPlaceBtn" type="button">Buscar lugar</button>
+                            </div>
+                            <small>Escribe el lugar y la app resolverá las coordenadas en segundo plano.</small>
+                        </div>
+                        <div id="selectedPlace" class="place-chip">📍 Ubicación base: Panamá, Panamá</div>
+                        <div id="geoNotice" class="inline-notice"></div>
+                        <div class="field">
+                            <label>Radio de análisis</label>
+                            <select id="radiusInput">
+                                <option value="3">3 km</option>
+                                <option value="5" selected>5 km</option>
+                                <option value="10">10 km</option>
+                            </select>
+                        </div>
+                        <div class="btn-row">
+                            <button class="btn-primary" id="locateBtn" type="button">Usar mi ubicación</button>
+                            <button class="btn-secondary" id="analyzeBtn" type="button">Analizar zona</button>
+                        </div>
+                        <details class="coords-panel">
+                            <summary>Ver sububicación técnica (coordenadas)</summary>
+                            <div class="coords-grid">
+                                <div class="field" style="margin-bottom:0;">
+                                    <label>Latitud</label>
+                                    <input type="number" step="0.000001" id="latInput" value="8.983000">
+                                </div>
+                                <div class="field" style="margin-bottom:0;">
+                                    <label>Longitud</label>
+                                    <input type="number" step="0.000001" id="lngInput" value="-79.517000">
+                                </div>
+                            </div>
+                            <small>Las coordenadas siguen disponibles, pero quedan en segundo plano.</small>
+                        </details>
+                    </div>
+
+                    <div class="mini-card">
+                        <h3>Resumen rápido</h3>
+                        <div class="zone-summary">
+                            <div class="summary-box"><strong id="sumRisk">--</strong><span>Riesgo</span></div>
+                            <div class="summary-box"><strong id="sumTotal">0</strong><span>Incidentes</span></div>
+                            <div class="summary-box"><strong id="sum24h">0</strong><span>Últimas 24h</span></div>
+                            <div class="summary-box"><strong id="sumSeverity">0.0</strong><span>Severidad prom.</span></div>
+                        </div>
+                        <div id="summaryInsights" class="incident-list" style="margin-top:12px;"></div>
+                    </div>
+
+                    <div class="mini-card">
+                        <h3>Como construye la respuesta</h3>
+                        <div class="incident-list">
+                            <div class="incident-item">
+                                <strong>Analisis de zona</strong>
+                                <div class="muted">Calcula incidentes cercanos, ultimas 24h, severidad promedio y tendencia del area.</div>
+                            </div>
+                            <div class="incident-item">
+                                <strong>Motor de respuesta</strong>
+                                <div class="muted">Usa IA cuando esta disponible y, si no, responde con reglas y estadisticas reales de la plataforma.</div>
+                            </div>
+                            <div class="incident-item">
+                                <strong>Impacto para el usuario</strong>
+                                <div class="muted">Siempre devuelve riesgo, recomendaciones y contexto suficiente para decidir mejor.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mini-card">
+                        <h3>Preguntas sugeridas</h3>
+                        <p class="muted" style="font-size:12px;margin-bottom:10px;">Usan los datos reales que ya tiene PanamaAlert.</p>
+                        <div class="chip-row">
+                            <button class="prompt-chip" data-prompt="¿Qué tan segura es esta zona ahora mismo?">Seguridad actual</button>
+                            <button class="prompt-chip" data-prompt="¿Qué tipo de incidentes predominan en esta zona?">Tipos de incidentes</button>
+                            <button class="prompt-chip" data-prompt="Dame recomendaciones para moverme con seguridad aquí">Recomendaciones</button>
+                            <button class="prompt-chip" data-prompt="¿Hay una tendencia de aumento o disminución?">Tendencia</button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="assistant-panel chat-shell">
+                <div class="head">
+                    <h2 class="card-title">Chat del asistente</h2>
+                    <p class="card-subtitle">Respuestas contextualizadas con incidentes, severidad y tendencia de la zona.</p>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="msg bot">
+                        Ya quedó integrado en la app. Puedo responder sobre esta zona usando los incidentes cercanos, el nivel de riesgo y la tendencia detectada.
+                        <div class="msg-meta">
+                            <span class="pill">Contexto en vivo</span>
+                            <span class="pill">PanamaAlert</span>
+                            <span class="mini-status" id="assistantEngine">Esperando analisis</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Ej.: ¿Es buena idea pasar por aquí esta noche?">
+                    <button class="btn-primary" id="sendBtn" type="button">Enviar</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script nonce="{{ csp_nonce }}">
+        window.csrfToken = {{ csrf_token | tojson }};
+        const DEFAULT_COORDS = { lat: 8.983, lng: -79.517 };
+        const DEFAULT_PLACE = 'Panamá, Panamá';
+        let currentCoords = { ...DEFAULT_COORDS };
+        let currentPlaceLabel = DEFAULT_PLACE;
+        let reverseLookupTimer = null;
+        const chatHistory = [];
+
+        function esc(v) {
+            return String(v || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function addMessage(kind, html) {
+            const box = document.createElement('div');
+            box.className = `msg ${kind}`;
+            box.innerHTML = html;
+            const wrap = document.getElementById('chatMessages');
+            wrap.appendChild(box);
+            wrap.scrollTop = wrap.scrollHeight;
+        }
+
+        function setNotice(message = '', type = 'warn') {
+            const el = document.getElementById('geoNotice');
+            if (!el) return;
+            if (!message) {
+                el.style.display = 'none';
+                el.textContent = '';
+                return;
+            }
+            el.style.display = 'block';
+            el.textContent = message;
+            el.style.background = type === 'ok' ? '#ecfeff' : '#fff7ed';
+            el.style.borderColor = type === 'ok' ? '#a5f3fc' : '#fed7aa';
+            el.style.color = type === 'ok' ? '#155e75' : '#9a3412';
+        }
+
+        function setAssistantEngine(label, isRuleBased = false) {
+            const el = document.getElementById('assistantEngine');
+            if (!el) return;
+            el.textContent = label;
+            el.classList.toggle('rule', !!isRuleBased);
+        }
+
+        function setPlaceLabel(label) {
+            currentPlaceLabel = label || `${currentCoords.lat.toFixed(5)}, ${currentCoords.lng.toFixed(5)}`;
+            document.getElementById('selectedPlace').innerHTML = `📍 Ubicación base: ${esc(currentPlaceLabel)}`;
+            document.getElementById('assistantLocation').textContent = currentPlaceLabel;
+            const placeInput = document.getElementById('placeInput');
+            if (placeInput && currentPlaceLabel && currentPlaceLabel !== 'Coordenadas manuales') {
+                placeInput.value = currentPlaceLabel;
+            }
+        }
+
+        function updateLocationLabel() {
+            setPlaceLabel(currentPlaceLabel);
+        }
+
+        function riskPill(level) {
+            const label = { low:'Bajo', medium:'Medio', high:'Alto', critical:'Crítico' }[level] || level || '--';
+            return `<span class="pill ${esc(level)}">Riesgo ${label}</span>`;
+        }
+
+        async function reverseGeocode(lat, lng, fallbackLabel = 'Ubicación actual') {
+            try {
+                const res = await fetch('/api/geo/reverse', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken || '' },
+                    body: JSON.stringify({ lat, lng })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'No se pudo identificar el lugar');
+                setPlaceLabel(data.place_name || fallbackLabel);
+            } catch (err) {
+                setPlaceLabel(fallbackLabel);
+            }
+        }
+
+        async function locateUser(showToastMessage = false) {
+            if (!navigator.geolocation) {
+                if (showToastMessage) setNotice('Tu navegador no soporta geolocalizacion.', 'warn');
+                return;
+            }
+            document.getElementById('assistantStatus').textContent = 'Ubicando...';
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                currentCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                document.getElementById('latInput').value = currentCoords.lat.toFixed(6);
+                document.getElementById('lngInput').value = currentCoords.lng.toFixed(6);
+                setPlaceLabel('Mi ubicación actual');
+                document.getElementById('assistantStatus').textContent = 'Ubicación lista';
+                setNotice('Ubicación detectada correctamente.', 'ok');
+                await reverseGeocode(currentCoords.lat, currentCoords.lng, 'Mi ubicación actual');
+                loadZoneAnalysis();
+            }, () => {
+                document.getElementById('assistantStatus').textContent = 'Usando ubicación manual';
+                setNotice('No pude obtener tu ubicación automática. Puedes seguir usando el nombre del lugar o las coordenadas.', 'warn');
+            }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 120000 });
+        }
+
+        function syncCoordsFromInputs(runReverseLookup = false) {
+            currentCoords.lat = parseFloat(document.getElementById('latInput').value || DEFAULT_COORDS.lat);
+            currentCoords.lng = parseFloat(document.getElementById('lngInput').value || DEFAULT_COORDS.lng);
+            if (!Number.isFinite(currentCoords.lat) || !Number.isFinite(currentCoords.lng)) {
+                currentCoords = { ...DEFAULT_COORDS };
+            }
+            if (runReverseLookup) {
+                setPlaceLabel('Coordenadas manuales');
+                clearTimeout(reverseLookupTimer);
+                reverseLookupTimer = setTimeout(() => reverseGeocode(currentCoords.lat, currentCoords.lng, 'Coordenadas manuales'), 500);
+            }
+            updateLocationLabel();
+        }
+
+        async function searchPlace() {
+            const query = (document.getElementById('placeInput').value || '').trim();
+            if (!query) {
+                setNotice('Escribe un lugar, direccion o punto de referencia.', 'warn');
+                return;
+            }
+            document.getElementById('assistantStatus').textContent = 'Buscando lugar...';
+            try {
+                const res = await fetch('/api/geo/search', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken || '' },
+                    body: JSON.stringify({ query })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'No se pudo encontrar el lugar');
+
+                const best = data.best_match || {};
+                currentCoords = { lat: Number(best.lat), lng: Number(best.lng) };
+                document.getElementById('latInput').value = currentCoords.lat.toFixed(6);
+                document.getElementById('lngInput').value = currentCoords.lng.toFixed(6);
+                setPlaceLabel(best.name || query);
+                document.getElementById('assistantStatus').textContent = 'Lugar encontrado';
+                setNotice('Lugar resuelto y coordenadas actualizadas en segundo plano.', 'ok');
+                loadZoneAnalysis();
+            } catch (err) {
+                document.getElementById('assistantStatus').textContent = 'Error';
+                setNotice(err.message, 'warn');
+            }
+        }
+
+        async function loadZoneAnalysis() {
+            syncCoordsFromInputs(false);
+            document.getElementById('assistantStatus').textContent = 'Analizando...';
+            setAssistantEngine('Analisis de zona', false);
+            try {
+                const res = await fetch('/api/ai/zone-analysis', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken || '' },
+                    body: JSON.stringify({ lat: currentCoords.lat, lng: currentCoords.lng, radius_km: parseFloat(document.getElementById('radiusInput').value || 5) })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'No se pudo analizar la zona');
+
+                document.getElementById('sumRisk').textContent = ({ low:'Bajo', medium:'Medio', high:'Alto', critical:'Crítico' }[data.risk_level] || '--');
+                document.getElementById('sumTotal').textContent = data.incidents_count || 0;
+                document.getElementById('sum24h').textContent = data.statistics?.last_24h || 0;
+                document.getElementById('sumSeverity').textContent = (data.statistics?.avg_severity || 0).toFixed(1);
+
+                const insights = data.insights || [];
+                const list = document.getElementById('summaryInsights');
+                list.innerHTML = insights.length
+                    ? insights.map(i => `<div class="incident-item"><strong>${esc(i.title || 'Insight')}</strong><div class="muted">${esc(i.description || '')}</div></div>`).join('')
+                    : '<div class="incident-item">No hay insights destacados para esta zona ahora mismo.</div>';
+
+                document.getElementById('assistantStatus').textContent = 'Análisis actualizado';
+                setAssistantEngine('Zona validada', false);
+                setNotice('Resumen de zona actualizado.', 'ok');
+            } catch (err) {
+                document.getElementById('assistantStatus').textContent = 'Error';
+                setAssistantEngine('Sin contexto', true);
+                document.getElementById('summaryInsights').innerHTML = `<div class="incident-item">${esc(err.message)}</div>`;
+            }
+        }
+
+        async function sendMessage(prefill) {
+            const input = document.getElementById('chatInput');
+            const message = (prefill || input.value).trim();
+            if (!message) return;
+            syncCoordsFromInputs(false);
+            addMessage('user', `<div>${esc(message)}</div><div class="msg-meta"><span class="pill">${esc(currentPlaceLabel)}</span></div>`);
+            chatHistory.push({ role: 'user', content: message });
+            input.value = '';
+            document.getElementById('assistantStatus').textContent = 'Consultando IA...';
+            setAssistantEngine('Consultando motor', false);
+
+            try {
+                const res = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken || '' },
+                    body: JSON.stringify({
+                        message,
+                        lat: currentCoords.lat,
+                        lng: currentCoords.lng,
+                        radius_km: parseFloat(document.getElementById('radiusInput').value || 5),
+                        place_name: currentPlaceLabel,
+                        history: chatHistory.slice(-8)
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'No se pudo responder');
+
+                const trendMap = { increasing: 'En aumento', stable: 'Estable', decreasing: 'A la baja' };
+                const items = Array.isArray(data.action_items) && data.action_items.length
+                    ? `<ul class="actions-list">${data.action_items.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
+                const incidents = Array.isArray(data.nearby_incidents) && data.nearby_incidents.length
+                    ? `<div class="incident-list">${data.nearby_incidents.slice(0, 4).map(i => `<div class="incident-item"><strong>${esc(i.title || 'Incidente')}</strong><div class="muted">${esc(i.category || 'General')} · Severidad ${esc(i.severity)}${i.created_at ? ' · ' + esc(i.created_at) : ''}</div></div>`).join('')}</div>` : '';
+                const assistantText = data.response || 'Sin respuesta';
+                const engineLabel = data.ai_powered ? 'Respuesta con IA' : 'Respuesta por reglas';
+                chatHistory.push({ role: 'assistant', content: assistantText });
+                addMessage('bot', `
+                    <div>${esc(assistantText)}</div>
+                    <div class="msg-meta">
+                        ${riskPill(data.risk_level)}
+                        <span class="pill">Zona ${esc(data.place_name || currentPlaceLabel)}</span>
+                        <span class="pill">Tendencia ${esc(trendMap[data.trend] || data.trend || 'Estable')}</span>
+                        <span class="pill">${esc(data.incidents_count || 0)} incidentes</span>
+                        <span class="pill">Radio ${esc(data.radius_km || document.getElementById('radiusInput').value)} km</span>
+                        <span class="pill">${data.ai_powered ? 'IA activa' : 'Análisis contextual'}</span>
+                        <span class="mini-status ${data.ai_powered ? '' : 'rule'}">${engineLabel}</span>
+                    </div>
+                    ${items}
+                    ${incidents}
+                `);
+                document.getElementById('assistantStatus').textContent = 'Respuesta lista';
+                setAssistantEngine(engineLabel, !data.ai_powered);
+            } catch (err) {
+                addMessage('bot', `<div>${esc(err.message)}</div>`);
+                document.getElementById('assistantStatus').textContent = 'Error';
+                setAssistantEngine('Sin respuesta', true);
+                setNotice(err.message, 'warn');
+            }
+        }
+
+        document.getElementById('locateBtn').addEventListener('click', () => locateUser(true));
+        document.getElementById('searchPlaceBtn').addEventListener('click', searchPlace);
+        document.getElementById('placeInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchPlace();
+            }
+        });
+        document.getElementById('analyzeBtn').addEventListener('click', loadZoneAnalysis);
+        document.getElementById('sendBtn').addEventListener('click', () => sendMessage());
+        document.getElementById('chatInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
+        });
+        document.querySelectorAll('[data-prompt]').forEach(btn => btn.addEventListener('click', () => sendMessage(btn.dataset.prompt)));
+        document.getElementById('latInput').addEventListener('change', () => syncCoordsFromInputs(true));
+        document.getElementById('lngInput').addEventListener('change', () => syncCoordsFromInputs(true));
+
+        setNotice('Puedes escribir un lugar, usar tu ubicación o abrir las coordenadas técnicas.', 'ok');
+        setAssistantEngine('Esperando analisis', false);
+        setPlaceLabel(DEFAULT_PLACE);
+        document.getElementById('placeInput').value = DEFAULT_PLACE;
+        loadZoneAnalysis();
+        setTimeout(() => locateUser(false), 1200);
+    </script>
+</body>
+</html>
