@@ -1,8 +1,11 @@
+
 # PanamaAlert Pro — Documentación Maestra
 
 Plataforma SaaS para reportar, verificar y visualizar incidentes ciudadanos
 (seguridad, tránsito, emergencias) en Panamá. Cubre los 7 requisitos del
 proyecto final de Base de Datos II.
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Todologo28/PanamaAlertAI)
 
 ---
 
@@ -19,6 +22,10 @@ proyecto final de Base de Datos II.
 - `tests/PanamaAlert_load.jmx`
 
 ---
+
+## Screenshot
+
+<img width="1941" height="1082" alt="image" src="https://github.com/user-attachments/assets/c73c131b-eb9a-4888-8be9-080cc7fb6970" />
 
 ## 1. Caso de uso
 
