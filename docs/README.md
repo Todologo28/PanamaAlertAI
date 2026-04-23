@@ -1,5 +1,5 @@
 
-# PanamaAlert Pro — Documentación Maestra
+# PanamaAlert — Documentación Maestra
 
 Plataforma SaaS para reportar, verificar y visualizar incidentes ciudadanos
 (seguridad, tránsito, emergencias) en Panamá. Cubre los 7 requisitos del
