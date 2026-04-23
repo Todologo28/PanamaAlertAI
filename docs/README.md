@@ -1,3 +1,4 @@
+<img width="1205" height="474" alt="image" src="https://github.com/user-attachments/assets/82673cf4-24a8-4ca0-b465-699a2deccfe2" />
 
 # PanamaAlert — Documentación Maestra
 
@@ -6,8 +7,6 @@ Plataforma SaaS para reportar, verificar y visualizar incidentes ciudadanos
 proyecto final de Base de Datos II.
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Todologo28/PanamaAlertAI)
-
-<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/549683c7-2bc2-4328-9907-6a1fb172dbff" />
 
 ## 0. Indice recomendado de entrega
 
