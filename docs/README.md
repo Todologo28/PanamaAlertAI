@@ -49,8 +49,6 @@ proyecto final de Base de Datos II.
 6. ETL importa cada 15 min datasets abiertos (datos.gob.pa, feeds RSS) hacia
    `etl_staging_incidents` → `incidents`.
 
----
-
 ## 2. Estructura del repo
 
 ```
@@ -84,8 +82,6 @@ PanamaAlert2/
 ├─ requirements.txt
 └─ .env.example
 ```
-
----
 
 ## 3. Instalación paso a paso (VM OL8 + MariaDB)
 
@@ -131,52 +127,9 @@ Ver `bi/powerbi_connection.md`.
   ejecutar `Auth → Login` → el resto reutiliza `{{token}}` automáticamente.
 - **JMeter:** `jmeter -n -t tests/PanamaAlert_load.jmx -l results.jtl -e -o report/`
 
----
-
 ## 4. Diagrama Entidad-Relación
 
-```
-                          ┌─────────────┐
-                          │ provinces   │
-                          └──────┬──────┘
-                                 │1
-                                 │
-                                 ▼*
-                          ┌─────────────┐
-                          │ districts   │
-                          └──────┬──────┘
-                                 │1
-                                 │
-              ┌──────────────────┼──────────────────────────┐
-              │                  ▼*                         │
-       ┌────────────┐     ┌────────────┐               ┌──────────┐
-       │   roles    │1───*│   users    │*─────────────1│  plans   │
-       └────────────┘     └────┬──┬────┘  subscriptions└──────────┘
-                               │  │
-                          1   /    \   1
-                              │    │
-                              ▼*   ▼*
-                  ┌──────────────────┐    ┌─────────────────────┐
-                  │   incidents      │1──*│ incident_comments   │
-                  │ (lat,lng,sev,    │    └─────────────────────┘
-                  │  status, fk cat) │
-                  └────┬─────────────┘
-                       │1
-              ┌────────┼─────────┬───────────────┐
-              ▼*       ▼*        ▼*              ▼*
-        incident_  incident_  incident_    notifications
-        categories  votes     media
-                                              ▲
-   alert_subscriptions ─────────────────────── │
-   (geo-fence premium)                          │
-                                                │
-   audit_log, auth_attempts, api_keys, etl_runs, etl_staging_incidents
-```
-
-Tablas: 17. FK declaradas, ON DELETE coherente, índices compuestos en lookups
-calientes (status+created_at, kind+identifier+created_at, lat+lng).
-
----
+<img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/691f6a3b-ec08-438d-a669-9b3138b4b6e1" />
 
 ## 5. Componentes que cumplen el PDF
 
@@ -193,8 +146,6 @@ calientes (status+created_at, kind+identifier+created_at, lat+lng).
 | **Caso de uso integrador**     | Sección 1                                                               |
 | **Documentación**              | Este README + manual + ER + glosario + lecciones                        |
 
----
-
 ## 6. Características que justifican cobrar (innovadoras +5 %)
 
 - **Geo-fences premium** con notificaciones automáticas vía SP + Haversine SQL.
@@ -207,8 +158,6 @@ calientes (status+created_at, kind+identifier+created_at, lat+lng).
 - **JWT + API keys** coexistiendo (sesión web vs B2B).
 - **Vistas de hotspots** listas para Power BI sin transformaciones extra.
 - **ETL idempotente con staging** — facilita auditoría y reprocesamiento.
-
----
 
 ## 7. Glosario
 
@@ -227,8 +176,6 @@ calientes (status+created_at, kind+identifier+created_at, lat+lng).
 | **Audit log**    | Bitácora inmutable de acciones (compliance / forense)              |
 | **Stored Proc**  | Lógica encapsulada en la DB, ejecutable con `CALL`                 |
 | **ORM**          | Object Relational Mapper, mapea filas a objetos Python             |
-
----
 
 ## 8. Lecciones aprendidas
 
@@ -251,8 +198,6 @@ calientes (status+created_at, kind+identifier+created_at, lat+lng).
 9. **Migración DynamoDB → MariaDB** reveló cuánto código de "tipos" desaparece
    cuando hay schema fuerte (no más `Decimal()` por todos lados).
 
----
-
 ## 9. Manual de operación rápida
 
 | Tarea                          | Comando                                                                |
@@ -265,8 +210,6 @@ calientes (status+created_at, kind+identifier+created_at, lat+lng).
 | Ver hotspots                   | `SELECT * FROM v_hotspots ORDER BY incidents_30d DESC LIMIT 10;`       |
 | Ascender usuario a moderador   | `UPDATE users SET role_id=(SELECT id FROM roles WHERE name='moderator') WHERE email='x@y';` |
 | Carga JMeter                   | `jmeter -n -t tests/PanamaAlert_load.jmx -l out.jtl -e -o report/`     |
-
----
 
 ## 10. Roadmap (premium)
 
